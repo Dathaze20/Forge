@@ -151,12 +151,13 @@ export default function App() {
       console.error("Generation error:", err);
       vibrate([100, 50, 100]);
       let userMessage = "NEURAL FORGE COLLAPSE: ANOMALY DETECTED.";
-      
+
       try {
-        // Handle Gemini 429 quota specifically
-        if (err.message && (err.message.includes("429") || err.message.includes("quota"))) {
-          userMessage = "QUOTA EXHAUSTED: THE SYSTEM IS COOLING DOWN. PLEASE WAIT 60 SECONDS BEFORE RE-FORGING.";
-        } else if (err instanceof Error) {
+        // geminiService already crafts a specific, detailed message for every
+        // failure case (invalid key, quota exhausted, timeout, etc.) - show
+        // it as-is instead of replacing it with a vague canned phrase that
+        // was hiding the actual reason.
+        if (err instanceof Error && err.message) {
           userMessage = `SYSTEM ERROR: ${err.message.toUpperCase()}`;
         }
       } catch (pErr) {
