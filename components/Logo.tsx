@@ -1,0 +1,41 @@
+import React from 'react';
+import { BarChart3 } from 'lucide-react';
+
+import { motion } from 'motion/react';
+
+export const Logo = () => (
+  <motion.div 
+    initial={{ opacity: 0, x: -10 }}
+    animate={{ opacity: 1, x: 0 }}
+    className="flex items-center gap-3 group cursor-pointer"
+  >
+    <div className="relative flex flex-col items-center justify-center w-11 h-11 bg-white rounded-xl shadow-lg shadow-cyan-500/20 shrink-0 group-hover:scale-105 transition-transform duration-500">
+      <div className="flex items-end gap-[1.5px] mb-[1.5px]">
+        <motion.div 
+          animate={{ height: [8, 12, 8] }}
+          transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
+          className="w-[3px] h-3 bg-slate-900 rounded-sm" 
+        />
+        <motion.div 
+          animate={{ height: [15, 20, 15] }}
+          transition={{ duration: 2, repeat: Infinity, ease: "easeInOut", delay: 0.3 }}
+          className="w-[3px] h-5 bg-slate-900 rounded-sm" 
+        />
+        <motion.div 
+          animate={{ height: [6, 10, 6] }}
+          transition={{ duration: 2, repeat: Infinity, ease: "easeInOut", delay: 0.6 }}
+          className="w-[3px] h-2.5 bg-slate-900 rounded-sm" 
+        />
+      </div>
+      <span className="text-[6px] font-[1000] text-slate-800 leading-none tracking-tighter uppercase font-mono">Medi</span>
+    </div>
+    <div className="flex flex-col justify-center">
+      <h1 className="text-2xl font-[1000] italic tracking-tighter leading-none text-white font-sans group-hover:text-cyan-400 transition-colors duration-500">POSTPILOT</h1>
+      <div className="flex items-center gap-2 mt-0.5">
+        <span className="text-[7px] font-mono font-black text-cyan-500 tracking-[0.4em] uppercase">SYS_FORGE</span>
+        <div className="w-1 h-1 rounded-full bg-cyan-500 animate-pulse" />
+        <span className="text-[7px] font-mono font-black text-slate-600 tracking-[0.4em] uppercase group-hover:text-slate-400 transition-colors">FORGE_V2.6</span>
+      </div>
+    </div>
+  </motion.div>
+);
