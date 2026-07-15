@@ -66,6 +66,7 @@ export const SettingsPanel = ({ open, onClose }: SettingsPanelProps) => {
               value={value}
               onChange={(e) => setValue(e.target.value)}
               placeholder="Paste your Gemini API key"
+              aria-label="Gemini API key"
               autoComplete="off"
               autoCapitalize="off"
               autoCorrect="off"

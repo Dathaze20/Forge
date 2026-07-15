@@ -21,11 +21,12 @@ export const CopyButton = ({ content, label }: CopyButtonProps) => {
   };
 
   return (
-    <button 
+    <button
       onClick={handleCopy}
+      aria-label={copied ? 'Copied to clipboard' : label ? `Copy ${label.toLowerCase()}` : 'Copy to clipboard'}
       className={`flex items-center gap-3 px-5 py-2.5 rounded-full transition-all active:scale-95 group border ${
-        copied 
-          ? 'bg-green-500/20 border-green-500/40 text-green-400' 
+        copied
+          ? 'bg-green-500/20 border-green-500/40 text-green-400'
           : 'bg-white/5 border-white/10 text-slate-400 hover:border-cyan-500/50 hover:text-cyan-400 hover:bg-cyan-500/5'
       }`}
     >
