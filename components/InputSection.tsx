@@ -29,18 +29,23 @@ export const InputSection = ({ value, onChange, onSubmit, sentiment, onSentiment
   const bytes = new TextEncoder().encode(value).length;
   const isHighVolume = bytes > 500000;
   const isGiganticArchive = bytes > 2500000;
+  const isReady = !!value.trim();
   const [pasteFailed, setPasteFailed] = useState(false);
 
   return (
     <div className="flex-1 flex flex-col gap-3 min-h-0 overflow-hidden">
       <div className={cn(
-        "flex-1 relative group rounded-[1.5rem] border min-h-0 focus-within:ring-2 ring-cyan-500/10 transition-all duration-700",
-        isGiganticArchive 
-          ? "bg-indigo-950/40 border-indigo-500/40 shadow-[0_0_30px_rgba(79,70,229,0.15)]" 
-          : isHighVolume 
-            ? "bg-cyan-950/20 border-cyan-500/30" 
+        "flex-1 relative group rounded-[1.5rem] border min-h-0 focus-within:ring-2 ring-cyan-500/10 transition-all duration-700 overflow-hidden",
+        isGiganticArchive
+          ? "bg-indigo-950/40 border-indigo-500/40 shadow-[0_0_30px_rgba(79,70,229,0.15)]"
+          : isHighVolume
+            ? "bg-cyan-950/20 border-cyan-500/30"
             : "bg-[#0d1423]/80 border-white/[0.05]"
       )}>
+        <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-cyan-400/50 to-transparent pointer-events-none z-10" />
+        {!value && (
+          <Bolt className="absolute -right-4 -bottom-4 w-40 h-40 text-cyan-400/[0.04] pointer-events-none select-none rotate-12" />
+        )}
         <textarea
           value={value}
           onChange={(e) => onChange(e.target.value)}
@@ -111,16 +116,18 @@ export const InputSection = ({ value, onChange, onSubmit, sentiment, onSentiment
           onClick={() => onSentimentChange(Sentiment.FOR)}
           className={cn(
             "flex flex-col items-center justify-center gap-3 rounded-[1.5rem] border transition-all duration-300 pointer-events-auto",
-            sentiment === Sentiment.FOR 
-              ? "border-cyan-400 bg-cyan-400/[0.05] text-cyan-400 shadow-[0_0_20px_rgba(34,211,238,0.1)]" 
+            sentiment === Sentiment.FOR
+              ? "border-cyan-400/60 bg-gradient-to-b from-cyan-400/10 to-transparent text-cyan-300 shadow-[0_0_25px_rgba(34,211,238,0.15)]"
               : "bg-[#0d1423] border-white/[0.03] text-slate-600 hover:border-white/10"
           )}
         >
           <div className={cn(
             "w-11 h-11 rounded-full flex items-center justify-center border transition-all duration-300",
-            sentiment === Sentiment.FOR ? "border-cyan-400/40 bg-cyan-400/20" : "border-white/5 bg-white/5"
+            sentiment === Sentiment.FOR
+              ? "border-cyan-300/50 bg-gradient-to-br from-cyan-400 to-cyan-600 shadow-[0_0_15px_rgba(34,211,238,0.4)]"
+              : "border-white/5 bg-white/5"
           )}>
-            <ThumbsUp className={cn("w-5 h-5", sentiment === Sentiment.FOR ? "text-cyan-400" : "text-slate-800")} />
+            <ThumbsUp className={cn("w-5 h-5", sentiment === Sentiment.FOR ? "text-black" : "text-slate-800")} />
           </div>
           <span className="text-[10px] font-black uppercase tracking-[0.2em] font-sans">FOR IT</span>
         </motion.button>
@@ -132,37 +139,63 @@ export const InputSection = ({ value, onChange, onSubmit, sentiment, onSentiment
           onClick={() => onSentimentChange(Sentiment.AGAINST)}
           className={cn(
             "flex flex-col items-center justify-center gap-3 rounded-[1.5rem] border transition-all duration-300 pointer-events-auto",
-            sentiment === Sentiment.AGAINST 
-              ? "border-red-400/80 bg-red-400/[0.05] text-red-400 shadow-[0_0_20px_rgba(239,68,68,0.1)]" 
+            sentiment === Sentiment.AGAINST
+              ? "border-red-400/60 bg-gradient-to-b from-red-400/10 to-transparent text-red-300 shadow-[0_0_25px_rgba(239,68,68,0.15)]"
               : "bg-[#0d1423] border-white/[0.03] text-slate-600 hover:border-white/10"
           )}
         >
           <div className={cn(
             "w-11 h-11 rounded-full flex items-center justify-center border transition-all duration-300",
-            sentiment === Sentiment.AGAINST ? "border-red-400/40 bg-red-400/20" : "border-white/5 bg-white/5"
+            sentiment === Sentiment.AGAINST
+              ? "border-red-300/50 bg-gradient-to-br from-red-400 to-red-600 shadow-[0_0_15px_rgba(239,68,68,0.4)]"
+              : "border-white/5 bg-white/5"
           )}>
-            <ThumbsDown className={cn("w-5 h-5", sentiment === Sentiment.AGAINST ? "text-red-400" : "text-slate-800")} />
+            <ThumbsDown className={cn("w-5 h-5", sentiment === Sentiment.AGAINST ? "text-black" : "text-slate-800")} />
           </div>
           <span className="text-[10px] font-black uppercase tracking-[0.2em] font-sans">AGAINST</span>
         </motion.button>
       </div>
 
       <motion.button
-        whileHover={value.trim() ? { scale: 1.01 } : {}}
-        whileTap={value.trim() ? { scale: 0.99 } : {}}
+        whileHover={isReady ? { scale: 1.01 } : {}}
+        whileTap={isReady ? { scale: 0.99 } : {}}
         type="button"
         onClick={onSubmit}
-        disabled={!value.trim()}
-        className="w-full group h-24 rounded-[2rem] transition-all duration-500 border border-white/[0.08] overflow-hidden flex shrink-0 pointer-events-auto relative bg-[#0d1423] hover:bg-[#121c33] hover:border-cyan-500/20 active:scale-[0.99]"
+        disabled={!isReady}
+        className={cn(
+          "w-full group h-24 rounded-[2rem] transition-all duration-500 overflow-hidden flex shrink-0 pointer-events-auto relative active:scale-[0.99]",
+          isReady
+            ? "border border-cyan-300/40 bg-gradient-to-r from-cyan-500 via-cyan-400 to-indigo-500 shadow-[0_0_40px_rgba(6,182,212,0.35)]"
+            : "border border-white/[0.08] bg-[#0d1423] hover:bg-[#121c33] hover:border-cyan-500/20"
+        )}
       >
-        <div className="w-20 bg-black/40 flex items-center justify-center shrink-0 border-r border-white/5 z-10">
-          <div className="w-11 h-11 rounded-xl flex items-center justify-center border border-white/10 bg-white/5">
-            <Bolt className="w-6 h-6 text-slate-700 group-hover:text-cyan-500" />
+        {isReady && (
+          <motion.div
+            animate={{ x: ['-120%', '220%'] }}
+            transition={{ duration: 2.5, repeat: Infinity, ease: 'easeInOut' }}
+            className="absolute inset-y-0 w-1/3 bg-gradient-to-r from-transparent via-white/25 to-transparent skew-x-12 pointer-events-none"
+          />
+        )}
+        <div className={cn(
+          "w-20 flex items-center justify-center shrink-0 border-r z-10 transition-colors duration-500",
+          isReady ? "bg-black/10 border-white/10" : "bg-black/40 border-white/5"
+        )}>
+          <div className={cn(
+            "w-11 h-11 rounded-xl flex items-center justify-center border transition-all duration-500",
+            isReady ? "border-white/30 bg-white/10" : "border-white/10 bg-white/5"
+          )}>
+            <Bolt className={cn("w-6 h-6 transition-colors", isReady ? "text-white" : "text-slate-700 group-hover:text-cyan-500")} />
           </div>
         </div>
         <div className="flex-1 min-w-0 flex flex-col items-start justify-center px-5 text-left z-10">
-          <span className="text-[9px] font-mono font-black text-slate-700 tracking-[0.15em] mb-1 uppercase group-hover:text-slate-500 transition-colors truncate max-w-full">INITIATE ARCHIVE FORGE</span>
-          <h2 className="text-3xl font-[1000] italic uppercase tracking-tighter leading-none font-sans text-white group-hover:text-cyan-400 truncate max-w-full pr-1">
+          <span className={cn(
+            "text-[9px] font-mono font-black tracking-[0.15em] mb-1 uppercase transition-colors truncate max-w-full",
+            isReady ? "text-black/50" : "text-slate-700 group-hover:text-slate-500"
+          )}>INITIATE ARCHIVE FORGE</span>
+          <h2 className={cn(
+            "text-3xl font-[1000] italic uppercase tracking-tighter leading-none font-sans truncate max-w-full pr-1 transition-colors",
+            isReady ? "text-black" : "text-white group-hover:text-cyan-400"
+          )}>
             GENERATE
           </h2>
         </div>
