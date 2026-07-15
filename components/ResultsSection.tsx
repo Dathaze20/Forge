@@ -22,16 +22,26 @@ function cn(...inputs: ClassValue[]) {
 
 type Tab = 'article' | 'seo' | 'process';
 
+const SECTION_HEADERS = new Set([
+  'THE ORIGIN STORY',
+  'THE TURNING POINT',
+  'THE BODY OF WORK',
+  'THE TRAGEDY',
+  'THE LEGACY AND THE VAULT',
+]);
+
+const stripMetadataBlocks = (text: string) => text
+  .replace(/\[YT_METADATA\][\s\S]*?\[\/YT_METADATA\]/g, '')
+  .replace(/\[MEDIUM_TAGS\][\s\S]*?\[\/MEDIUM_TAGS\]/g, '')
+  .trim();
+
 export const ResultsSection = forwardRef<HTMLDivElement, ResultsSectionProps>(({ content, thought, youtubeMetadata, mediumMetadata, sources, onNew }, ref) => {
   const wordCount = useMemo(() => content.split(/\s+/).filter(Boolean).length, [content]);
+  const cleanContent = useMemo(() => stripMetadataBlocks(content), [content]);
   const [tab, setTab] = useState<Tab>('article');
 
   const parseContent = (text: string) => {
-    // Remove metadata blocks from the main text display
-    const cleanText = text
-      .replace(/\[YT_METADATA\][\s\S]*?\[\/YT_METADATA\]/g, '')
-      .replace(/\[MEDIUM_TAGS\][\s\S]*?\[\/MEDIUM_TAGS\]/g, '')
-      .trim();
+    const cleanText = stripMetadataBlocks(text);
 
     const lines = cleanText.split('\n');
     let isTitle = true;
@@ -41,7 +51,7 @@ export const ResultsSection = forwardRef<HTMLDivElement, ResultsSectionProps>(({
       let trimmedLine = line.trim();
       if (!trimmedLine) return <div key={i} className="h-6" />;
 
-      const isHeader = trimmedLine === trimmedLine.toUpperCase() && trimmedLine.length > 5 && !trimmedLine.includes('HTTPS') && !trimmedLine.includes('.');
+      const isHeader = SECTION_HEADERS.has(trimmedLine);
 
       if (isTitle) {
         isTitle = false;
@@ -117,7 +127,7 @@ export const ResultsSection = forwardRef<HTMLDivElement, ResultsSectionProps>(({
             { label: 'WORD DENSITY', value: wordCount.toLocaleString(), color: 'text-white' },
             { label: 'READ LATENCY', value: `${Math.ceil(wordCount / 200)}m`, color: 'text-white' },
             { label: 'NEURAL NODES', value: (sources.length || 12).toString(), color: 'text-cyan-400' },
-            { label: 'SCALE RATIO', value: '1:10', color: 'text-indigo-400' },
+            { label: 'TARGET DENSITY', value: `${Math.round((wordCount / 4750) * 100)}%`, color: 'text-indigo-400' },
           ].map((stat, i) => (
             <div key={i} className="flex flex-col px-4 py-2 rounded-2xl bg-white/[0.02] border border-white/[0.03]">
               <span className="text-[7px] font-black text-slate-500 uppercase tracking-widest mb-0.5">{stat.label}</span>
@@ -135,7 +145,7 @@ export const ResultsSection = forwardRef<HTMLDivElement, ResultsSectionProps>(({
             New
           </button>
           <div className="flex items-center gap-2">
-            <CopyButton content={content} />
+            <CopyButton content={cleanContent} />
             <button className="w-9 h-9 flex items-center justify-center rounded-full bg-slate-900 border border-white/10 text-slate-500 hover:text-white hover:border-white/30 transition-all">
               <Share2 className="w-4 h-4" />
             </button>
@@ -178,7 +188,7 @@ export const ResultsSection = forwardRef<HTMLDivElement, ResultsSectionProps>(({
 
             <div className="mt-24 flex justify-center sticky bottom-0 pb-12 pt-6 bg-gradient-to-t from-[#0a0f1d] via-[#0a0f1d]/90 to-transparent z-20">
               <div className="p-1 rounded-full bg-white/5 border border-white/10 backdrop-blur-md shadow-2xl">
-                <CopyButton content={content} label="SECURE FORGED ASSET" />
+                <CopyButton content={cleanContent} label="SECURE FORGED ASSET" />
               </div>
             </div>
 

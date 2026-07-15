@@ -44,6 +44,13 @@ export default function App() {
     setHasKey(!!getApiKey());
   }, []);
 
+  // Auto-dismiss the error toast so it doesn't linger forever if the user ignores it
+  useEffect(() => {
+    if (!error) return;
+    const timer = setTimeout(() => setError(null), 6000);
+    return () => clearTimeout(timer);
+  }, [error]);
+
   // Keep the screen on while a generation is streaming (long-form output takes a while)
   useEffect(() => {
     const acquire = async () => {

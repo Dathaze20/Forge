@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Sentiment } from '../types';
 import { ThumbsUp, ThumbsDown, Hexagon, Activity, Bolt } from 'lucide-react';
 import { clsx, type ClassValue } from 'clsx';
@@ -6,6 +6,10 @@ import { twMerge } from 'tailwind-merge';
 
 function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
+}
+
+function vibrate(pattern: number | number[]) {
+  try { navigator.vibrate?.(pattern); } catch {}
 }
 
 interface InputSectionProps {
@@ -25,6 +29,7 @@ export const InputSection = ({ value, onChange, onSubmit, sentiment, onSentiment
   const bytes = new TextEncoder().encode(value).length;
   const isHighVolume = bytes > 500000;
   const isGiganticArchive = bytes > 2500000;
+  const [pasteFailed, setPasteFailed] = useState(false);
 
   return (
     <div className="flex-1 flex flex-col gap-3 min-h-0 overflow-hidden">
@@ -61,14 +66,24 @@ export const InputSection = ({ value, onChange, onSubmit, sentiment, onSentiment
           onClick={async () => {
             try {
               const text = await navigator.clipboard.readText();
+              if (!text) throw new Error('Clipboard empty');
               onChange(text);
+              vibrate(15);
             } catch (err) {
               console.error('Failed to read clipboard', err);
+              vibrate([50, 30, 50]);
+              setPasteFailed(true);
+              setTimeout(() => setPasteFailed(false), 1800);
             }
           }}
-          className="absolute top-6 right-6 px-4 py-2 rounded-xl bg-white/5 border border-white/10 text-[10px] font-black text-slate-500 uppercase tracking-widest hover:border-cyan-500/50 hover:text-cyan-400 hover:bg-cyan-500/5 transition-all z-20"
+          className={cn(
+            "absolute top-6 right-6 px-4 py-2 rounded-xl border text-[10px] font-black uppercase tracking-widest transition-all z-20",
+            pasteFailed
+              ? "bg-red-500/10 border-red-500/40 text-red-400"
+              : "bg-white/5 border-white/10 text-slate-500 hover:border-cyan-500/50 hover:text-cyan-400 hover:bg-cyan-500/5"
+          )}
         >
-          SMART_PASTE
+          {pasteFailed ? 'PASTE FAILED' : 'SMART_PASTE'}
         </button>
 
         <div className="absolute bottom-5 right-6 flex items-center gap-3 pointer-events-none">
