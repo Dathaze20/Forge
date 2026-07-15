@@ -2,10 +2,15 @@ import { GoogleGenAI, ThinkingLevel } from "@google/genai";
 import { Sentiment, GenerationUpdate, GroundingSource } from "../types";
 import { getApiKey } from "../lib/apiKey";
 
+// "-latest" aliases are maintained by Google and silently repoint to whatever
+// the current model actually is - no code change needed when Google ships a
+// new version. Pinned versions are kept only as a last-resort safety net in
+// case an alias is ever temporarily unavailable.
 const MODELS_TO_TRY = [
-  "gemini-3.5-flash",       // Primary modern stable flash model
-  "gemini-3-flash-preview", // Developer preview flash model
-  "gemini-flash-latest",    // General alias fallback
+  "gemini-pro-latest",      // Always the current top-tier model
+  "gemini-flash-latest",    // Always the current fast-tier model
+  "gemini-3.5-flash",       // Pinned fallback
+  "gemini-3-flash-preview", // Pinned fallback
 ];
 
 const MAX_ATTEMPTS_PER_MODEL = 3;
