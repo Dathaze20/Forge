@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect, useCallback } from 'react';
 import { Sentiment, AppState } from './types';
 import { generateBlogPost } from './services/geminiService';
 import { Logo } from './components/Logo';
@@ -6,12 +6,16 @@ import { InputSection } from './components/InputSection';
 import { ResultsSection } from './components/ResultsSection';
 import { clsx, type ClassValue } from 'clsx';
 import { twMerge } from 'tailwind-merge';
-import { Menu } from 'lucide-react';
+import { MessageSquare } from 'lucide-react';
 
 import { motion, AnimatePresence } from 'motion/react';
 
 function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
+}
+
+function vibrate(pattern: number | number[]) {
+  try { navigator.vibrate?.(pattern); } catch {}
 }
 
 export default function App() {
@@ -20,12 +24,47 @@ export default function App() {
   const [appState, setAppState] = useState<AppState>(AppState.IDLE);
   const [result, setResult] = useState<string>('');
   const [thought, setThought] = useState<string>('');
-  
+
   const [youtubeMetadata, setYoutubeMetadata] = useState<{ title: string; description: string; tags: string } | undefined>();
   const [mediumMetadata, setMediumMetadata] = useState<{ tags: string[] } | undefined>();
 
   const [error, setError] = useState<string | null>(null);
   const resultsRef = useRef<HTMLDivElement>(null);
+  const wakeLockRef = useRef<WakeLockSentinel | null>(null);
+
+  // Keep the screen on while a generation is streaming (long-form output takes a while)
+  useEffect(() => {
+    const acquire = async () => {
+      if (appState !== AppState.GENERATING || !('wakeLock' in navigator)) return;
+      try {
+        wakeLockRef.current = await navigator.wakeLock.request('screen');
+      } catch {}
+    };
+    const release = () => {
+      wakeLockRef.current?.release().catch(() => {});
+      wakeLockRef.current = null;
+    };
+
+    if (appState === AppState.GENERATING) {
+      acquire();
+      const onVisibility = async () => {
+        if (document.visibilityState === 'visible' && appState === AppState.GENERATING) {
+          await acquire();
+        }
+      };
+      document.addEventListener('visibilitychange', onVisibility);
+      return () => {
+        document.removeEventListener('visibilitychange', onVisibility);
+        release();
+      };
+    }
+    release();
+  }, [appState]);
+
+  const handleSentimentChange = useCallback((next: Sentiment) => {
+    vibrate(15);
+    setSentiment(next);
+  }, []);
 
   const parseMetadata = (content: string) => {
     // Parse YouTube Metadata
@@ -49,7 +88,8 @@ export default function App() {
   const handleGenerate = async () => {
     console.log("Handle generate called. Notes length:", notes.trim().length);
     if (!notes.trim()) return;
-    
+
+    vibrate(30);
     setAppState(AppState.GENERATING);
     setResult('');
     setThought('');
@@ -67,7 +107,10 @@ export default function App() {
             parseMetadata(update.content);
           }
           if (update.thought) setThought(update.thought);
-          if (update.isComplete) setAppState(AppState.COMPLETE);
+          if (update.isComplete) {
+            setAppState(AppState.COMPLETE);
+            vibrate([40, 60, 40, 60, 80]);
+          }
         }
       );
       
@@ -76,6 +119,7 @@ export default function App() {
       }, 100);
     } catch (err: any) {
       console.error("Generation error:", err);
+      vibrate([100, 50, 100]);
       let userMessage = "NEURAL FORGE COLLAPSE: ANOMALY DETECTED.";
       
       try {
@@ -107,11 +151,18 @@ export default function App() {
         />
       </div>
 
-      <header className="mb-4 flex justify-between items-center shrink-0 z-10 relative">
+      <header className="mb-4 flex justify-between items-center shrink-0 z-10 relative safe-pt">
         <Logo />
-        <button className="w-11 h-11 flex flex-col items-center justify-center glass-input rounded-xl border border-white/10 hover:border-white/20 transition-all active:scale-95">
-          <Menu className="w-5 h-5 text-slate-500" />
-        </button>
+        <a
+          href="https://github.com/Dathaze20/Forge/issues/new"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="w-11 h-11 flex flex-col items-center justify-center glass-input rounded-xl border border-white/10 hover:border-cyan-500/50 active:scale-95 transition-all"
+          aria-label="Send feedback"
+          title="Send feedback"
+        >
+          <MessageSquare className="w-5 h-5 text-slate-500" />
+        </a>
       </header>
 
       <main className="w-full flex-1 flex flex-col overflow-hidden relative min-h-0 z-10">
@@ -126,7 +177,7 @@ export default function App() {
                 onSubmit={handleGenerate}
                 isLoading={appState === AppState.GENERATING}
                 sentiment={sentiment}
-                onSentimentChange={setSentiment}
+                onSentimentChange={handleSentimentChange}
               />
           </div>
         </div>
@@ -143,13 +194,14 @@ export default function App() {
               mediumMetadata={mediumMetadata}
               sources={[]}
               onNew={() => {
+                vibrate(15);
                 setAppState(AppState.IDLE);
                 setNotes('');
                 setResult('');
                 setThought('');
                 setYoutubeMetadata(undefined);
                 setMediumMetadata(undefined);
-              }} 
+              }}
             />
           </div>
         </div>
@@ -177,7 +229,7 @@ export default function App() {
         </AnimatePresence>
       </main>
 
-      <footer className="mt-4 flex justify-center items-center gap-3 shrink-0 pb-1 z-20">
+      <footer className="mt-4 flex justify-center items-center gap-3 shrink-0 pb-1 z-20 safe-pb">
         <div className="h-1 w-20 rounded-full bg-cyan-400 shadow-[0_0_20px_rgba(34,211,238,0.5)]" />
         <div className="h-1.5 w-1.5 rounded-full bg-white/20" />
         <div className="h-1.5 w-1.5 rounded-full bg-white/10" />
