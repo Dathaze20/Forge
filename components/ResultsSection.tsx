@@ -255,19 +255,53 @@ export const ResultsSection = forwardRef<HTMLDivElement, ResultsSectionProps>(({
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            className="glass-input p-6 rounded-[2.5rem] border border-white/10 bg-slate-950/20"
+            className="flex flex-col gap-4"
           >
-            <div className="flex items-center gap-4 mb-6">
-              <div className="w-10 h-10 rounded-xl bg-indigo-500/10 border border-indigo-500/30 flex items-center justify-center">
-                <Activity className="w-5 h-5 text-indigo-500" />
+            <div className="glass-input p-6 rounded-[2.5rem] border border-white/10 bg-slate-950/20">
+              <div className="flex items-center gap-4 mb-6">
+                <div className="w-10 h-10 rounded-xl bg-indigo-500/10 border border-indigo-500/30 flex items-center justify-center">
+                  <Activity className="w-5 h-5 text-indigo-500" />
+                </div>
+                <div className="flex flex-col">
+                  <h3 className="text-[10px] font-black text-slate-100 uppercase tracking-[0.4em]">NEURAL PROCESS LOGS</h3>
+                  <span className="text-[9px] text-slate-500 uppercase tracking-widest">INTERNAL REASONING</span>
+                </div>
               </div>
-              <div className="flex flex-col">
-                <h3 className="text-[10px] font-black text-slate-100 uppercase tracking-[0.4em]">NEURAL PROCESS LOGS</h3>
-                <span className="text-[9px] text-slate-500 uppercase tracking-widest">INTERNAL REASONING</span>
+              <div className="text-sm font-mono text-slate-400 leading-relaxed whitespace-pre-wrap italic">
+                {thought || 'No process log for this generation yet.'}
               </div>
             </div>
-            <div className="text-sm font-mono text-slate-400 leading-relaxed whitespace-pre-wrap italic">
-              {thought || 'No process log for this generation yet.'}
+
+            <div className="glass-input p-6 rounded-[2.5rem] border border-white/10 bg-black/20">
+              <div className="flex items-center gap-4 mb-6">
+                <div className="w-10 h-10 rounded-xl bg-emerald-500/10 border border-emerald-500/30 flex items-center justify-center">
+                  <ExternalLink className="w-5 h-5 text-emerald-400" />
+                </div>
+                <div className="flex flex-col">
+                  <h3 className="text-[10px] font-black text-slate-100 uppercase tracking-[0.4em]">Live Search Sources</h3>
+                  <span className="text-[9px] text-slate-500 uppercase tracking-widest">{sources.length} verified {sources.length === 1 ? 'record' : 'records'}</span>
+                </div>
+              </div>
+
+              {sources.length > 0 ? (
+                <div className="space-y-2">
+                  {sources.map((source, i) => (
+                    <a
+                      key={i}
+                      href={source.uri}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="flex items-center gap-3 px-4 py-3 rounded-xl bg-white/[0.02] border border-white/[0.05] hover:border-emerald-500/30 transition-colors group"
+                    >
+                      <span className="text-[9px] font-mono font-black text-slate-600 shrink-0">{String(i + 1).padStart(2, '0')}</span>
+                      <span className="text-xs text-slate-400 group-hover:text-emerald-400 truncate flex-1 transition-colors">{source.title}</span>
+                      <ExternalLink className="w-3.5 h-3.5 text-slate-700 group-hover:text-emerald-400 shrink-0 transition-colors" />
+                    </a>
+                  ))}
+                </div>
+              ) : (
+                <p className="text-xs text-slate-600 italic">No grounded sources were returned for this generation.</p>
+              )}
             </div>
           </motion.div>
         )}
