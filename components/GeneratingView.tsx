@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useRef } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { motion } from 'motion/react';
 import { X, Zap } from 'lucide-react';
 
@@ -11,25 +11,49 @@ interface GeneratingViewProps {
 const TARGET_WORDS = 4750;
 const PREVIEW_CHARS = 900;
 
+// Live web search happens before any text streams back, so there can be a
+// genuine 10-60+ second gap with zero output. Without these, that gap reads
+// as "frozen" instead of "working" - so the status text escalates over time
+// to keep the user oriented while nothing is visibly happening yet.
+const WAITING_MESSAGES: [seconds: number, message: string][] = [
+  [0, 'INITIALIZING FORENSIC ENGINE...'],
+  [8, 'PERFORMING LIVE WEB RESEARCH...'],
+  [20, 'CROSS-REFERENCING VERIFIED SOURCES...'],
+  [35, 'DEEP RESEARCH IN PROGRESS, THIS CAN TAKE UP TO A MINUTE...'],
+  [60, 'STILL SEARCHING - THOROUGH FACT-CHECKING TAKES TIME...'],
+];
+
 export const GeneratingView = ({ content, thought, onCancel }: GeneratingViewProps) => {
   const wordCount = useMemo(() => content.split(/\s+/).filter(Boolean).length, [content]);
   const progress = Math.min(99, Math.round((wordCount / TARGET_WORDS) * 100));
   const preview = content.length > PREVIEW_CHARS ? content.slice(-PREVIEW_CHARS) : content;
   const previewRef = useRef<HTMLDivElement>(null);
+  const [elapsed, setElapsed] = useState(0);
 
   useEffect(() => {
     previewRef.current?.scrollTo({ top: previewRef.current.scrollHeight });
   }, [preview]);
 
+  useEffect(() => {
+    const timer = setInterval(() => setElapsed((s) => s + 1), 1000);
+    return () => clearInterval(timer);
+  }, []);
+
+  const isWaitingForFirstToken = content.length === 0;
+  const waitingMessage = isWaitingForFirstToken
+    ? [...WAITING_MESSAGES].reverse().find(([seconds]) => elapsed >= seconds)?.[1]
+    : null;
+  const statusText = waitingMessage || thought || 'Initializing...';
+
   return (
     <div className="flex-1 flex flex-col gap-4 min-h-0 py-2">
       <div className="flex-1 min-h-0 rounded-[1.75rem] border border-cyan-500/20 bg-black/60 relative overflow-hidden">
-        <div className="absolute top-0 left-0 right-0 flex items-center justify-between px-4 py-2.5 bg-black/40 border-b border-white/5 z-10">
-          <div className="flex items-center gap-2">
-            <div className="w-1.5 h-1.5 rounded-full bg-cyan-400 animate-pulse shadow-[0_0_8px_#22d3ee]" />
-            <span className="text-[9px] font-mono font-black text-cyan-400 uppercase tracking-[0.3em]">Live Synthesis</span>
+        <div className="absolute top-0 left-0 right-0 flex items-center justify-between gap-2 px-4 py-2.5 bg-black/40 border-b border-white/5 z-10">
+          <div className="flex items-center gap-2 min-w-0">
+            <div className="w-1.5 h-1.5 rounded-full bg-cyan-400 animate-pulse shadow-[0_0_8px_#22d3ee] shrink-0" />
+            <span className="text-[9px] font-mono font-black text-cyan-400 uppercase tracking-[0.15em] truncate">Live Synthesis</span>
           </div>
-          <span className="text-[9px] font-mono font-black text-slate-500 uppercase tracking-widest">{wordCount.toLocaleString()} words</span>
+          <span className="text-[9px] font-mono font-black text-slate-500 uppercase tracking-widest shrink-0">{wordCount.toLocaleString()} words</span>
         </div>
 
         <div
@@ -51,23 +75,32 @@ export const GeneratingView = ({ content, thought, onCancel }: GeneratingViewPro
         <div className="flex justify-between items-baseline">
           <div className="min-w-0">
             <h3 className="text-base font-bold text-white">Forging...</h3>
-            <p className="text-xs text-slate-500 uppercase tracking-widest truncate">{thought || 'Initializing...'}</p>
+            <p className="text-xs text-slate-500 uppercase tracking-widest truncate">{statusText}</p>
           </div>
           <span className="text-2xl font-bold text-cyan-400 tabular-nums shrink-0 ml-3">{progress}%</span>
         </div>
 
         <div
-          className="h-2.5 w-full bg-slate-800 rounded-full overflow-hidden"
+          className="h-2.5 w-full bg-slate-800 rounded-full overflow-hidden relative"
           role="progressbar"
           aria-valuenow={progress}
           aria-valuemin={0}
           aria-valuemax={100}
           aria-label="Generation progress"
         >
-          <div
-            className="h-full bg-gradient-to-r from-cyan-500 to-indigo-500 rounded-full transition-[width] duration-300"
-            style={{ width: `${progress}%` }}
-          />
+          {isWaitingForFirstToken ? (
+            <motion.div
+              initial={{ x: '-100%' }}
+              animate={{ x: '400%' }}
+              transition={{ duration: 1.4, repeat: Infinity, ease: 'linear' }}
+              className="absolute inset-y-0 w-1/4 bg-gradient-to-r from-transparent via-cyan-400 to-transparent rounded-full"
+            />
+          ) : (
+            <div
+              className="h-full bg-gradient-to-r from-cyan-500 to-indigo-500 rounded-full transition-[width] duration-300"
+              style={{ width: `${progress}%` }}
+            />
+          )}
         </div>
 
         <p className="text-[10px] text-slate-600 text-center uppercase tracking-widest flex items-center justify-center gap-1.5">

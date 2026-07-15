@@ -1,6 +1,6 @@
 import { motion, AnimatePresence } from 'motion/react';
 import { GroundingSource } from '../types';
-import { ExternalLink, RotateCcw, Activity, Play as Youtube, Share2, FileText, ChevronRight, CornerDownRight, Newspaper, Tags, Terminal } from 'lucide-react';
+import { ExternalLink, RotateCcw, Activity, Play as Youtube, Share2, CornerDownRight, Newspaper, Tags, Terminal } from 'lucide-react';
 import { CopyButton } from './CopyButton';
 import React, { forwardRef, useMemo, useState } from 'react';
 
@@ -39,6 +39,19 @@ export const ResultsSection = forwardRef<HTMLDivElement, ResultsSectionProps>(({
   const wordCount = useMemo(() => content.split(/\s+/).filter(Boolean).length, [content]);
   const cleanContent = useMemo(() => stripMetadataBlocks(content), [content]);
   const [tab, setTab] = useState<Tab>('article');
+
+  const handleShare = async () => {
+    const title = cleanContent.split('\n').find((l) => l.trim())?.trim() || 'PostPilot Article';
+    if (navigator.share) {
+      try {
+        await navigator.share({ title, text: cleanContent });
+      } catch {
+        // User cancelled the share sheet - not an error worth surfacing
+      }
+    } else {
+      await navigator.clipboard.writeText(cleanContent).catch(() => {});
+    }
+  };
 
   const parseContent = (text: string) => {
     const cleanText = stripMetadataBlocks(text);
@@ -93,11 +106,13 @@ export const ResultsSection = forwardRef<HTMLDivElement, ResultsSectionProps>(({
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             key={i}
-            className="text-2xl sm:text-4xl font-black uppercase tracking-tight mt-32 mb-12 text-white border-b-2 border-white/10 pb-6 flex items-center justify-between group"
+            className="text-2xl sm:text-4xl font-black uppercase tracking-tight mt-32 mb-12 text-white border-b-2 border-white/10 pb-6 flex items-center justify-between gap-4 group"
           >
-            <span>{trimmedLine}</span>
-            <div className="flex items-center gap-4">
-              <span className="text-[10px] font-mono font-bold text-cyan-500 tracking-[0.5em] opacity-30 group-hover:opacity-100 transition-opacity uppercase">ARCHIVE_SEC_${i}</span>
+            <span className="min-w-0">{trimmedLine}</span>
+            {/* Decorative flourish only - hidden below sm since a long header title already
+                needs all the room on a phone-width viewport */}
+            <div className="hidden sm:flex items-center gap-4 shrink-0">
+              <span className="text-[10px] font-mono font-bold text-cyan-500 tracking-[0.15em] opacity-30 group-hover:opacity-100 transition-opacity uppercase">ARCHIVE_SEC_{i}</span>
               <div className="w-2 h-2 rounded-full bg-cyan-500 shadow-[0_0_10px_#06b6d4] opacity-0 group-hover:opacity-100 transition-opacity" />
             </div>
           </motion.h2>
@@ -146,7 +161,12 @@ export const ResultsSection = forwardRef<HTMLDivElement, ResultsSectionProps>(({
           </button>
           <div className="flex items-center gap-2">
             <CopyButton content={cleanContent} />
-            <button className="w-9 h-9 flex items-center justify-center rounded-full bg-slate-900 border border-white/10 text-slate-500 hover:text-white hover:border-white/30 transition-all">
+            <button
+              onClick={handleShare}
+              className="w-9 h-9 flex items-center justify-center rounded-full bg-slate-900 border border-white/10 text-slate-500 hover:text-white hover:border-white/30 transition-all active:scale-95"
+              aria-label="Share article"
+              title="Share article"
+            >
               <Share2 className="w-4 h-4" />
             </button>
           </div>
@@ -200,7 +220,7 @@ export const ResultsSection = forwardRef<HTMLDivElement, ResultsSectionProps>(({
                   <span className="text-[9px] uppercase tracking-widest">Chief Cultural Biographer</span>
                 </div>
               </div>
-              <div className="text-[9px] uppercase tracking-[0.4em] font-black">GOLDEN GEMS ARCHIVES // 2026</div>
+              <div className="text-[9px] uppercase tracking-[0.15em] font-black">GOLDEN GEMS ARCHIVES // 2026</div>
             </div>
           </motion.article>
         )}
@@ -213,11 +233,11 @@ export const ResultsSection = forwardRef<HTMLDivElement, ResultsSectionProps>(({
           >
             <div className="glass-input p-6 rounded-[2.5rem] border border-white/10 bg-black/20">
               <div className="flex items-center justify-between mb-6">
-                <div className="flex items-center gap-4">
-                  <div className="w-10 h-10 rounded-full bg-red-500/10 border border-red-500/20 flex items-center justify-center">
+                <div className="flex items-center gap-4 min-w-0">
+                  <div className="w-10 h-10 rounded-full bg-red-500/10 border border-red-500/20 flex items-center justify-center shrink-0">
                     <Youtube className="w-5 h-5 text-red-500" />
                   </div>
-                  <h3 className="text-[10px] font-black text-slate-400 uppercase tracking-[0.4em]">YouTube Matrix</h3>
+                  <h3 className="text-[10px] font-black text-slate-400 uppercase tracking-[0.15em] truncate">YouTube Matrix</h3>
                 </div>
                 <CopyButton
                   content={`${youtubeMetadata?.title || ''}\n\n${youtubeMetadata?.description || ''}`}
@@ -241,11 +261,11 @@ export const ResultsSection = forwardRef<HTMLDivElement, ResultsSectionProps>(({
 
             <div className="glass-input p-6 rounded-[2.5rem] border border-white/10 bg-black/20">
               <div className="flex items-center justify-between mb-6">
-                <div className="flex items-center gap-4">
-                  <div className="w-10 h-10 rounded-full bg-cyan-500/10 border border-cyan-500/20 flex items-center justify-center">
+                <div className="flex items-center gap-4 min-w-0">
+                  <div className="w-10 h-10 rounded-full bg-cyan-500/10 border border-cyan-500/20 flex items-center justify-center shrink-0">
                     <Share2 className="w-5 h-5 text-cyan-400" />
                   </div>
-                  <h3 className="text-[10px] font-black text-slate-400 uppercase tracking-[0.4em]">Curation Tags</h3>
+                  <h3 className="text-[10px] font-black text-slate-400 uppercase tracking-[0.15em] truncate">Curation Tags</h3>
                 </div>
                 <CopyButton content={mediumMetadata?.tags?.join(', ') || ''} label="COPY" />
               </div>
@@ -268,13 +288,13 @@ export const ResultsSection = forwardRef<HTMLDivElement, ResultsSectionProps>(({
             className="flex flex-col gap-4"
           >
             <div className="glass-input p-6 rounded-[2.5rem] border border-white/10 bg-slate-950/20">
-              <div className="flex items-center gap-4 mb-6">
-                <div className="w-10 h-10 rounded-xl bg-indigo-500/10 border border-indigo-500/30 flex items-center justify-center">
+              <div className="flex items-center gap-4 mb-6 min-w-0">
+                <div className="w-10 h-10 rounded-xl bg-indigo-500/10 border border-indigo-500/30 flex items-center justify-center shrink-0">
                   <Activity className="w-5 h-5 text-indigo-500" />
                 </div>
-                <div className="flex flex-col">
-                  <h3 className="text-[10px] font-black text-slate-100 uppercase tracking-[0.4em]">NEURAL PROCESS LOGS</h3>
-                  <span className="text-[9px] text-slate-500 uppercase tracking-widest">INTERNAL REASONING</span>
+                <div className="flex flex-col min-w-0">
+                  <h3 className="text-[10px] font-black text-slate-100 uppercase tracking-[0.15em] truncate">NEURAL PROCESS LOGS</h3>
+                  <span className="text-[9px] text-slate-500 uppercase tracking-widest truncate">INTERNAL REASONING</span>
                 </div>
               </div>
               <div className="text-sm font-mono text-slate-400 leading-relaxed whitespace-pre-wrap italic">
@@ -283,13 +303,13 @@ export const ResultsSection = forwardRef<HTMLDivElement, ResultsSectionProps>(({
             </div>
 
             <div className="glass-input p-6 rounded-[2.5rem] border border-white/10 bg-black/20">
-              <div className="flex items-center gap-4 mb-6">
-                <div className="w-10 h-10 rounded-xl bg-emerald-500/10 border border-emerald-500/30 flex items-center justify-center">
+              <div className="flex items-center gap-4 mb-6 min-w-0">
+                <div className="w-10 h-10 rounded-xl bg-emerald-500/10 border border-emerald-500/30 flex items-center justify-center shrink-0">
                   <ExternalLink className="w-5 h-5 text-emerald-400" />
                 </div>
-                <div className="flex flex-col">
-                  <h3 className="text-[10px] font-black text-slate-100 uppercase tracking-[0.4em]">Live Search Sources</h3>
-                  <span className="text-[9px] text-slate-500 uppercase tracking-widest">{sources.length} verified {sources.length === 1 ? 'record' : 'records'}</span>
+                <div className="flex flex-col min-w-0">
+                  <h3 className="text-[10px] font-black text-slate-100 uppercase tracking-[0.15em] truncate">Live Search Sources</h3>
+                  <span className="text-[9px] text-slate-500 uppercase tracking-widest truncate">{sources.length} verified {sources.length === 1 ? 'record' : 'records'}</span>
                 </div>
               </div>
 
