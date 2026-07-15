@@ -3,16 +3,26 @@ import { getApiKey } from "../lib/apiKey";
 
 // "-latest" aliases are maintained by Google and silently repoint to whatever
 // the current model actually is - no code change needed when Google ships a
-// new version. Pinned versions are kept only as a last-resort safety net in
-// case an alias is ever temporarily unavailable.
+// new version. Flash-tier goes first: combined with search grounding and a
+// long system prompt, the Pro tier is dramatically slower for this workload
+// (confirmed - it's the one thing that changed between a working generation
+// and one that appeared to hang), so it's kept as a fallback rather than the
+// default path. Pinned versions are a last-resort safety net in case an
+// alias is ever temporarily unavailable.
 const MODELS_TO_TRY = [
-  "gemini-pro-latest",      // Always the current top-tier model
   "gemini-flash-latest",    // Always the current fast-tier model
+  "gemini-pro-latest",      // Always the current top-tier model, slower
   "gemini-3.5-flash",       // Pinned fallback
   "gemini-3-flash-preview", // Pinned fallback
 ];
 
 const MAX_ATTEMPTS_PER_MODEL = 3;
+
+// Search grounding runs before any text streams back, which can genuinely
+// take a while - but it must be bounded. If a model produces zero output
+// within this window, treat it as unresponsive and move on to the next one
+// rather than waiting indefinitely.
+const FIRST_TOKEN_TIMEOUT_MS = 45000;
 
 export const generateBlogPost = async (
   notes: string,
@@ -117,17 +127,19 @@ DESCRIPTION: [Forensic summary]
 
   const ai = new GoogleGenAI({ apiKey });
 
-  let result;
   let delayMs = 1500;
   let lastErrStr = "";
-  let lastWasRetryable = false;
 
   onUpdate({ thought: "INITIALIZING FORENSIC ENGINE... SEARCHING LIVE RECORDS..." });
 
   for (const currentModel of MODELS_TO_TRY) {
     for (let attempt = 0; attempt < MAX_ATTEMPTS_PER_MODEL; attempt++) {
+      const controller = new AbortController();
+      let gotFirstToken = false;
+      const timeoutTimer = setTimeout(() => controller.abort(), FIRST_TOKEN_TIMEOUT_MS);
+
       try {
-        result = await ai.models.generateContentStream({
+        const stream = await ai.models.generateContentStream({
           model: currentModel,
           contents: [{
             role: 'user',
@@ -147,22 +159,65 @@ DESCRIPTION: [Forensic summary]
             temperature: 0.8,
             systemInstruction,
             tools: [{ googleSearch: {} }],
+            abortSignal: controller.signal,
             ...(currentModel.startsWith("gemini-3") ? { thinkingConfig: { thinkingLevel: ThinkingLevel.LOW } } : {}),
           },
         });
-        break;
+
+        let fullContent = "";
+        const sourceMap = new Map<string, GroundingSource>();
+
+        for await (const chunk of stream) {
+          if (!gotFirstToken) {
+            gotFirstToken = true;
+            clearTimeout(timeoutTimer);
+          }
+
+          const text = chunk.text;
+          if (text) {
+            fullContent += text;
+            onUpdate({ content: fullContent, thought: "SEARCHING LIVE RECORDS AND SYNTHESIZING..." });
+          }
+
+          const chunks = chunk.candidates?.[0]?.groundingMetadata?.groundingChunks;
+          if (chunks) {
+            for (const c of chunks) {
+              if (c.web?.uri && !sourceMap.has(c.web.uri)) {
+                sourceMap.set(c.web.uri, { title: c.web.title || c.web.uri, uri: c.web.uri });
+              }
+            }
+          }
+        }
+
+        clearTimeout(timeoutTimer);
+        onUpdate({ content: fullContent, sources: Array.from(sourceMap.values()), isComplete: true });
+        return;
       } catch (err: any) {
-        const errStr = err?.message || String(err);
+        clearTimeout(timeoutTimer);
+
+        // Once real output has started, don't silently fail over to a
+        // different model - that would discard visible progress. Surface it.
+        if (gotFirstToken) {
+          throw new Error(`Gemini stream interrupted: ${err?.message || String(err)}`);
+        }
+
+        const timedOut = controller.signal.aborted;
+        const errStr = timedOut ? `No response within ${FIRST_TOKEN_TIMEOUT_MS / 1000}s` : (err?.message || String(err));
         console.warn(`[Forge System] Attempt ${attempt + 1} for model ${currentModel} failed:`, errStr);
+        lastErrStr = errStr;
+
+        if (timedOut) {
+          // A slow model rarely gets faster on an immediate retry - move
+          // straight to the next model instead of spending the retry budget
+          // waiting on the same one again.
+          break;
+        }
 
         const isRetryable = errStr.includes("503") ||
           errStr.includes("UNAVAILABLE") ||
           errStr.includes("429") ||
           errStr.includes("RESOURCE_EXHAUSTED") ||
           errStr.includes("quota");
-
-        lastErrStr = errStr;
-        lastWasRetryable = isRetryable;
 
         if (isRetryable && attempt < MAX_ATTEMPTS_PER_MODEL - 1) {
           await new Promise((resolve) => setTimeout(resolve, delayMs));
@@ -172,38 +227,10 @@ DESCRIPTION: [Forensic summary]
         }
       }
     }
-    if (result) break;
   }
 
-  if (!result) {
-    if (lastErrStr.includes("API_KEY_INVALID") || lastErrStr.includes("API key not valid")) {
-      throw new Error("Your Gemini API key is invalid. Check it in Settings.");
-    }
-    if (!lastWasRetryable && lastErrStr) {
-      throw new Error(`Gemini request failed: ${lastErrStr}`);
-    }
-    throw new Error("All active Gemini models are currently experiencing extremely high demand. Please try again in 30-60 seconds.");
+  if (lastErrStr.includes("API_KEY_INVALID") || lastErrStr.includes("API key not valid")) {
+    throw new Error("Your Gemini API key is invalid. Check it in Settings.");
   }
-
-  let fullContent = "";
-  const sourceMap = new Map<string, GroundingSource>();
-
-  for await (const chunk of result) {
-    const text = chunk.text;
-    if (text) {
-      fullContent += text;
-      onUpdate({ content: fullContent, thought: "SEARCHING LIVE RECORDS AND SYNTHESIZING..." });
-    }
-
-    const chunks = chunk.candidates?.[0]?.groundingMetadata?.groundingChunks;
-    if (chunks) {
-      for (const c of chunks) {
-        if (c.web?.uri && !sourceMap.has(c.web.uri)) {
-          sourceMap.set(c.web.uri, { title: c.web.title || c.web.uri, uri: c.web.uri });
-        }
-      }
-    }
-  }
-
-  onUpdate({ content: fullContent, sources: Array.from(sourceMap.values()), isComplete: true });
+  throw new Error(`All models failed or timed out. Last error: ${lastErrStr || 'unknown'}`);
 };
