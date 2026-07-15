@@ -52,7 +52,7 @@ Example: He synthesized 179 compounds no government had ever classified, publish
 
 OPENING HOOK PARAGRAPH
 
-This paragraph is unlabeled. It appears before THE ORIGIN STORY. Never start with a year-based statement such as the current year is or in ${currentYear}. Never start with a general introduction to the subject's importance. Open with the single most dramatic specific human fact available. A specific date. A specific location. A specific dollar amount. A specific quote. A specific action. The opening must establish the stakes immediately. End the opening hook by telling the reader what this piece is: this is the forensic audit of [subject name].
+This paragraph is unlabeled. It appears before THE ORIGIN STORY. Never start with a year-based statement such as the current year is or in ${currentYear}. Never start with a general introduction to the subject's importance. Open with the single most dramatic specific human fact available. A specific date. A specific location. A specific dollar amount. A specific quote. A specific action. The opening must establish the stakes immediately. Close the opening by transitioning into the subject's name and what is about to be exposed, using fresh, varied phrasing invented for this specific subject and this specific fact. Never reuse the same transition sentence or sentence structure from one piece to the next. Never use the fixed phrase "this is the forensic audit of" or any close variant of it as a template line.
 
 FIVE PART STRUCTURE
 
@@ -68,11 +68,11 @@ THE ORIGIN STORY covers birth, family, early life, formative experiences, and th
 
 THE TURNING POINT covers the specific documented moment or series of events that transformed the subject from who they were into who history knows them as. One central pivot. Specific. Dramatic. Verified.
 
-THE BODY OF WORK covers the full documented output, the specific achievements, the specific people they influenced, the specific institutions they challenged or built, the specific verified quotes they left behind, and the specific human cost of their work.
+THE BODY OF WORK is one of the two longest sections in the piece. It covers the full documented output, the specific achievements, the specific people they influenced, the specific institutions they challenged or built, the specific verified quotes they left behind, and the specific human cost of their work. Do not settle for one or two examples. Walk through the body of work chronologically or thematically and name every major project, paper, invention, case, or campaign you can verify, with its date, its institutional context, and its outcome. Name the specific collaborators, rivals, funders, and officials involved, with their titles. Quote directly from verified statements, testimony, or writing wherever possible instead of paraphrasing. Treat a single-paragraph achievement as unfinished work: if a fact deserves a sentence, it deserves a paragraph of documented context around it.
 
-THE TRAGEDY covers the documented institutional betrayal, personal destruction, suppression, or human cost. Not death alone. The systemic forces that destroyed, ignored, exploited, or erased them while profiting from what they built.
+THE TRAGEDY is the other of the two longest sections in the piece. It covers the documented institutional betrayal, personal destruction, suppression, or human cost. Not death alone. The systemic forces that destroyed, ignored, exploited, or erased them while profiting from what they built. Name every institution, agency, company, or individual responsible, with dates and documented actions, not just outcomes. Trace the sequence of betrayal step by step: what was known, who knew it, when they knew it, and what they did instead of the right thing. Quote directly from documented findings, rulings, hearings, or reporting wherever verified quotes exist. Do not compress a multi-year institutional failure into a single paragraph; give it the same room you would give a court record.
 
-THE LEGACY AND THE VAULT covers the current status as of ${currentDate} as best documented, what their work looks like now, who is still building on it, who is still profiting from it without credit, and what remains unresolved or classified.
+THE LEGACY AND THE VAULT covers the current status as of ${currentDate} as best documented, what their work looks like now, who is still building on it, who is still profiting from it without credit, and what remains unresolved or classified. This section must open or anchor on the single most recent verified development you know of, ideally from ${currentYear} or ${currentYear - 1}: a lawsuit, a declassification, a reissue, a company still profiting, a policy fight, a rediscovery, or a documented event connecting the subject to the present moment. A purely historical closing with no verified recent anchor is a failure of this section. Never claim something is happening today or right now unless you can name the specific verified development it refers to.
 
 SENTIMENT STANCE
 
@@ -90,7 +90,7 @@ BLACK-LISTED PHRASES: "cultural landscape", "vibrant", "journey", "tapestry", "b
 
 READ TIME TARGET
 
-Target 15 to 20 minutes on Medium, which is roughly 4,000 to 5,000 words. Always expand rather than condense. More verified content equals longer reads equals better earnings. Fill every section with specific documented details including names, dates, dollar amounts, locations, quotes, and institutional records. Never summarize when you can show. Never tell when you can quote.
+Target 15 to 20 minutes on Medium, which is roughly 4,000 to 5,000 words total. This is a hard floor, not a suggestion. THE ORIGIN STORY and THE TURNING POINT should each run several hundred words. THE BODY OF WORK and THE TRAGEDY are the longest sections and should each run at minimum 800 to 1,000 words of specific documented detail. THE LEGACY AND THE VAULT should run at least 500 to 700 words. If a section feels finished early, it is not finished, it is under-researched: go back and add the names, dates, dollar amounts, locations, quotes, and institutional records that were left out. Always expand rather than condense. More verified content equals longer reads equals better earnings. Never summarize when you can show. Never tell when you can quote.
 
 ABOUT THE AUTHOR
 
