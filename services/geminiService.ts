@@ -92,6 +92,26 @@ READ TIME TARGET
 
 Target 15 to 20 minutes on Medium, which is roughly 4,000 to 5,000 words total. This is a hard floor, not a suggestion. THE ORIGIN STORY and THE TURNING POINT should each run several hundred words. THE BODY OF WORK and THE TRAGEDY are the longest sections and should each run at minimum 800 to 1,000 words of specific documented detail. THE LEGACY AND THE VAULT should run at least 500 to 700 words. If a section feels finished early, it is not finished, it is under-researched: go back and add the names, dates, dollar amounts, locations, quotes, and institutional records that were left out. Always expand rather than condense. More verified content equals longer reads equals better earnings. Never summarize when you can show. Never tell when you can quote.
 
+FINAL QUALITY STANDARD
+
+Before delivering the final draft, review and upgrade the piece against every item below. Do not deliver a draft that fails any of these checks.
+
+READING TIME: Medium calculates reading time at approximately 265 words per minute. Hitting 15 minutes requires approximately 3,975 words. Hitting 20 minutes requires approximately 5,300 words. Expand every section with additional verified facts, specific names, specific dollar amounts, specific dates, specific locations, direct quotes from primary sources, and documented institutional details until the total word count falls between 4,000 and 5,300 words. Never pad with vague sentences. Every additional sentence must contain a specific verifiable fact.
+
+OPENING HOOK: The first sentence must be the single most dramatic verifiable fact in the entire piece, combining specific details rather than stating just one. The second sentence must raise the stakes immediately. The third sentence must connect to the present. The opening hook paragraph must make the reader feel they cannot stop reading.
+
+VOICE AUDIT: Scan the entire piece and remove every dash used as punctuation in prose. Remove every semicolon. Remove every instance of bold text. Remove every bullet point. Remove every numbered list. Remove every subheading that is not one of the five official section headers. Replace any passive voice construction with active voice. Replace any vague abstraction with a specific documented fact.
+
+CLOSING QUESTIONS AUDIT: Question one must name a specific institution or person and ask something genuinely unanswerable from the evidence in the piece. Question two must challenge the reader to reconsider something they thought they understood about power, law, or justice. Question three must be the most uncomfortable of the three, the one that makes the reader sit with an answer they do not want to admit. None of the three questions may summarize or repeat content already stated in the piece. All three must be forward-looking and genuinely debatable.
+
+FACT DENSITY CHECK: Every paragraph in THE ORIGIN STORY must contain at least two specific verifiable facts. Every paragraph in THE TURNING POINT must contain at least three specific verifiable facts. Every paragraph in THE BODY OF WORK must contain at least three specific verifiable facts. Every paragraph in THE TRAGEDY must contain at least two specific verifiable facts, with direct quotes from primary sources where available. Every paragraph in THE LEGACY AND THE VAULT must reference at least one development from ${currentYear - 1} or ${currentYear} and connect the subject's work to a current institution, legal case, clinical trial, or ongoing investigation.
+
+CURRENT HOOK CHECK: THE LEGACY AND THE VAULT must answer what is happening right now in ${currentYear} that makes this story urgent today, not just what happened historically. What is unresolved. What is still classified. What institution is still profiting. What victim is still waiting. What evidence is still missing. This current hook must appear in the first paragraph of THE LEGACY AND THE VAULT section.
+
+TITLE AND SUBTITLE FINAL CHECK: The title must be ALL CAPS subject name, colon, short punchy consequence, maximum twelve words after the colon. No question marks. No dashes. No symbols. The subtitle must be one sentence only, must make the reader feel the injustice without telling them what they will find inside, must not end with a question mark, and must not contain a call to action.
+
+ABOUT THE AUTHOR FINAL CHECK: The About the Author section below must appear exactly as written with no modifications, with the Buy Me a Coffee link present and correct, and no additional text before or after it.
+
 ABOUT THE AUTHOR
 
 End every piece with this exact text with no changes:
