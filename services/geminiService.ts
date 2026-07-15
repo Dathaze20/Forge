@@ -174,10 +174,17 @@ DESCRIPTION: [Forensic summary]
     if (lastErrStr.includes("API_KEY_INVALID") || lastErrStr.includes("API key not valid")) {
       throw new Error("Your Gemini API key is invalid. Check it in Settings.");
     }
+    // 429/RESOURCE_EXHAUSTED/quota specifically means your key has hit a
+    // rate or usage limit - different from generic server congestion (503),
+    // and needs a different fix (wait for the limit to reset, check usage at
+    // aistudio.google.com/apikey), so it gets a distinct message.
+    if (lastErrStr.includes("429") || lastErrStr.includes("RESOURCE_EXHAUSTED") || lastErrStr.includes("quota")) {
+      throw new Error(`Rate limit or quota exceeded on your Gemini key. Check usage at aistudio.google.com/apikey. Details: ${lastErrStr}`);
+    }
     if (!lastWasRetryable && lastErrStr) {
       throw new Error(`Gemini request failed: ${lastErrStr}`);
     }
-    throw new Error("All active Gemini models are currently experiencing extremely high demand. Please try again in 30-60 seconds.");
+    throw new Error(`All active Gemini models are currently experiencing extremely high demand. Please try again in 30-60 seconds. Details: ${lastErrStr}`);
   }
 
   let fullContent = "";
