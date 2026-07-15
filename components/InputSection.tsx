@@ -162,7 +162,7 @@ export const InputSection = ({ value, onChange, onSubmit, sentiment, onSentiment
         </div>
         <div className="flex-1 min-w-0 flex flex-col items-start justify-center px-5 text-left z-10">
           <span className="text-[9px] font-mono font-black text-slate-700 tracking-[0.15em] mb-1 uppercase group-hover:text-slate-500 transition-colors truncate max-w-full">INITIATE ARCHIVE FORGE</span>
-          <h2 className="text-3xl font-[1000] italic uppercase tracking-tighter leading-none font-sans text-white group-hover:text-cyan-400 truncate max-w-full">
+          <h2 className="text-3xl font-[1000] italic uppercase tracking-tighter leading-none font-sans text-white group-hover:text-cyan-400 truncate max-w-full pr-1">
             GENERATE
           </h2>
         </div>
