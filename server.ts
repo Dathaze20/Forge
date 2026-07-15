@@ -78,6 +78,8 @@ DESCRIPTION: [Forensic summary]
       let attempt = 0;
       const maxAttempts = 3;
       let delayMs = 1500;
+      let lastErrStr = "";
+      let lastWasRetryable = false;
 
       const modelsToTry = [
         "gemini-3.5-flash",        // Primary modern stable flash model
@@ -121,13 +123,16 @@ DESCRIPTION: [Forensic summary]
             attempt++;
             const errStr = err?.message || String(err);
             console.warn(`[Forge System] Attempt ${attempt} for model ${currentModel} failed:`, errStr);
-            
-            const isRetryable = errStr.includes("503") || 
-                               errStr.includes("UNAVAILABLE") || 
-                               errStr.includes("429") || 
+
+            const isRetryable = errStr.includes("503") ||
+                               errStr.includes("UNAVAILABLE") ||
+                               errStr.includes("429") ||
                                errStr.includes("RESOURCE_EXHAUSTED") ||
                                errStr.includes("quota");
-                               
+
+            lastErrStr = errStr;
+            lastWasRetryable = isRetryable;
+
             if (isRetryable && attempt < maxAttempts) {
               console.log(`[Forge System] Retrying in ${delayMs}ms due to service load...`);
               await new Promise(resolve => setTimeout(resolve, delayMs));
@@ -142,6 +147,12 @@ DESCRIPTION: [Forensic summary]
       }
 
       if (!result) {
+        if (lastErrStr.includes("API_KEY_INVALID") || lastErrStr.includes("API key not valid")) {
+          throw new Error("Your Gemini API key is invalid. Check GEMINI_API_KEY in your server settings.");
+        }
+        if (!lastWasRetryable && lastErrStr) {
+          throw new Error(`Gemini request failed: ${lastErrStr}`);
+        }
         throw new Error("All active Gemini models are currently experiencing extremely high demand. Please try again in 30-60 seconds.");
       }
 
