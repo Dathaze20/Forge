@@ -46,6 +46,7 @@ export const InputSection = ({ value, onChange, onSubmit, sentiment, onSentiment
         <textarea
           value={value}
           onChange={(e) => onChange(e.target.value)}
+          aria-label="Subject data for analysis"
           className={cn(
             "w-full h-full bg-transparent p-6 text-white font-mono text-xl leading-relaxed focus:outline-none transition-all custom-scrollbar resize-none pb-20",
             isGiganticArchive ? "placeholder:text-indigo-800" : "placeholder:text-slate-800"
@@ -84,6 +85,7 @@ export const InputSection = ({ value, onChange, onSubmit, sentiment, onSentiment
               ? "bg-red-500/10 border-red-500/40 text-red-400"
               : "bg-white/5 border-white/10 text-slate-500 hover:border-cyan-500/50 hover:text-cyan-400 hover:bg-cyan-500/5"
           )}
+          aria-label="Paste from clipboard"
         >
           {pasteFailed ? 'PASTE FAILED' : 'SMART_PASTE'}
         </button>
@@ -111,6 +113,8 @@ export const InputSection = ({ value, onChange, onSubmit, sentiment, onSentiment
           whileTap={{ scale: 0.98 }}
           type="button"
           onClick={() => onSentimentChange(Sentiment.FOR)}
+          aria-pressed={sentiment === Sentiment.FOR}
+          aria-label="Sentiment: for it"
           className={cn(
             "flex flex-col items-center justify-center gap-3 rounded-[1.5rem] border transition-all duration-300 pointer-events-auto",
             sentiment === Sentiment.FOR
@@ -132,6 +136,8 @@ export const InputSection = ({ value, onChange, onSubmit, sentiment, onSentiment
           whileTap={{ scale: 0.98 }}
           type="button"
           onClick={() => onSentimentChange(Sentiment.AGAINST)}
+          aria-pressed={sentiment === Sentiment.AGAINST}
+          aria-label="Sentiment: against"
           className={cn(
             "flex flex-col items-center justify-center gap-3 rounded-[1.5rem] border transition-all duration-300 pointer-events-auto",
             sentiment === Sentiment.AGAINST
@@ -155,6 +161,7 @@ export const InputSection = ({ value, onChange, onSubmit, sentiment, onSentiment
         type="button"
         onClick={onSubmit}
         disabled={!isReady}
+        aria-label="Generate blog post"
         className={cn(
           "w-full group h-24 rounded-[2rem] transition-all duration-500 overflow-hidden flex shrink-0 pointer-events-auto relative active:scale-[0.99]",
           isReady

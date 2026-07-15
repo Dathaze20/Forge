@@ -172,10 +172,12 @@ export const ResultsSection = forwardRef<HTMLDivElement, ResultsSectionProps>(({
           </div>
         </div>
 
-        <div className="grid grid-cols-3 gap-2 p-1 glass-input rounded-2xl border border-white/5">
+        <div role="tablist" aria-label="Result view" className="grid grid-cols-3 gap-2 p-1 glass-input rounded-2xl border border-white/5">
           {tabs.map((t) => (
             <button
               key={t.id}
+              role="tab"
+              aria-selected={tab === t.id}
               onClick={() => setTab(t.id)}
               className={cn(
                 "flex items-center justify-center gap-2 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all",
