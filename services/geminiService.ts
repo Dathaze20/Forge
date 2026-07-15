@@ -1,4 +1,3 @@
-import { GoogleGenAI, ThinkingLevel } from "@google/genai";
 import { Sentiment, GenerationUpdate, GroundingSource } from "../types";
 import { getApiKey } from "../lib/apiKey";
 
@@ -24,6 +23,10 @@ export const generateBlogPost = async (
   if (!apiKey) {
     throw new Error("Add your Gemini API key in Settings first.");
   }
+
+  // Loaded on demand so the SDK isn't part of the initial page bundle -
+  // it's only fetched the moment a generation actually starts.
+  const { GoogleGenAI, ThinkingLevel } = await import("@google/genai");
 
   const now = new Date();
   const currentDate = now.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' });
