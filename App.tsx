@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect, useCallback } from 'react';
-import { Sentiment, AppState } from './types';
+import { Sentiment, AppState, GroundingSource } from './types';
 import { generateBlogPost } from './services/geminiService';
 import { getApiKey } from './lib/apiKey';
 import { Logo } from './components/Logo';
@@ -30,6 +30,7 @@ export default function App() {
 
   const [youtubeMetadata, setYoutubeMetadata] = useState<{ title: string; description: string; tags: string } | undefined>();
   const [mediumMetadata, setMediumMetadata] = useState<{ tags: string[] } | undefined>();
+  const [sources, setSources] = useState<GroundingSource[]>([]);
 
   const [error, setError] = useState<string | null>(null);
   const [showSettings, setShowSettings] = useState(false);
@@ -113,6 +114,7 @@ export default function App() {
     setThought('');
     setYoutubeMetadata(undefined);
     setMediumMetadata(undefined);
+    setSources([]);
     setError(null);
 
     try {
@@ -126,6 +128,7 @@ export default function App() {
             parseMetadata(update.content);
           }
           if (update.thought) setThought(update.thought);
+          if (update.sources) setSources(update.sources);
           if (update.isComplete) {
             setAppState(AppState.COMPLETE);
             vibrate([40, 60, 40, 60, 80]);
@@ -231,12 +234,12 @@ export default function App() {
           appState === AppState.COMPLETE ? "translate-y-0 opacity-100" : "translate-y-full opacity-0 pointer-events-none"
         )}>
           <div className="h-full overflow-y-auto custom-scrollbar pt-2" ref={resultsRef}>
-            <ResultsSection 
-              content={result} 
+            <ResultsSection
+              content={result}
               thought={thought}
               youtubeMetadata={youtubeMetadata}
               mediumMetadata={mediumMetadata}
-              sources={[]}
+              sources={sources}
               onNew={() => {
                 vibrate(15);
                 setAppState(AppState.IDLE);
@@ -245,6 +248,7 @@ export default function App() {
                 setThought('');
                 setYoutubeMetadata(undefined);
                 setMediumMetadata(undefined);
+                setSources([]);
               }}
             />
           </div>
