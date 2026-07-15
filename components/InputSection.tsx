@@ -43,9 +43,6 @@ export const InputSection = ({ value, onChange, onSubmit, sentiment, onSentiment
             : "bg-[#0d1423]/80 border-white/[0.05]"
       )}>
         <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-cyan-400/50 to-transparent pointer-events-none z-10" />
-        {!value && (
-          <Bolt className="absolute -right-4 -bottom-4 w-40 h-40 text-cyan-400/[0.04] pointer-events-none select-none rotate-12" />
-        )}
         <textarea
           value={value}
           onChange={(e) => onChange(e.target.value)}
@@ -117,17 +114,15 @@ export const InputSection = ({ value, onChange, onSubmit, sentiment, onSentiment
           className={cn(
             "flex flex-col items-center justify-center gap-3 rounded-[1.5rem] border transition-all duration-300 pointer-events-auto",
             sentiment === Sentiment.FOR
-              ? "border-cyan-400/60 bg-gradient-to-b from-cyan-400/10 to-transparent text-cyan-300 shadow-[0_0_25px_rgba(34,211,238,0.15)]"
+              ? "border-cyan-400 bg-cyan-400/[0.05] text-cyan-400 shadow-[0_0_20px_rgba(34,211,238,0.1)]"
               : "bg-[#0d1423] border-white/[0.03] text-slate-600 hover:border-white/10"
           )}
         >
           <div className={cn(
             "w-11 h-11 rounded-full flex items-center justify-center border transition-all duration-300",
-            sentiment === Sentiment.FOR
-              ? "border-cyan-300/50 bg-gradient-to-br from-cyan-400 to-cyan-600 shadow-[0_0_15px_rgba(34,211,238,0.4)]"
-              : "border-white/5 bg-white/5"
+            sentiment === Sentiment.FOR ? "border-cyan-400/40 bg-cyan-400/20" : "border-white/5 bg-white/5"
           )}>
-            <ThumbsUp className={cn("w-5 h-5", sentiment === Sentiment.FOR ? "text-black" : "text-slate-800")} />
+            <ThumbsUp className={cn("w-5 h-5", sentiment === Sentiment.FOR ? "text-cyan-400" : "text-slate-800")} />
           </div>
           <span className="text-[10px] font-black uppercase tracking-[0.2em] font-sans">FOR IT</span>
         </motion.button>
@@ -140,17 +135,15 @@ export const InputSection = ({ value, onChange, onSubmit, sentiment, onSentiment
           className={cn(
             "flex flex-col items-center justify-center gap-3 rounded-[1.5rem] border transition-all duration-300 pointer-events-auto",
             sentiment === Sentiment.AGAINST
-              ? "border-red-400/60 bg-gradient-to-b from-red-400/10 to-transparent text-red-300 shadow-[0_0_25px_rgba(239,68,68,0.15)]"
+              ? "border-red-400/80 bg-red-400/[0.05] text-red-400 shadow-[0_0_20px_rgba(239,68,68,0.1)]"
               : "bg-[#0d1423] border-white/[0.03] text-slate-600 hover:border-white/10"
           )}
         >
           <div className={cn(
             "w-11 h-11 rounded-full flex items-center justify-center border transition-all duration-300",
-            sentiment === Sentiment.AGAINST
-              ? "border-red-300/50 bg-gradient-to-br from-red-400 to-red-600 shadow-[0_0_15px_rgba(239,68,68,0.4)]"
-              : "border-white/5 bg-white/5"
+            sentiment === Sentiment.AGAINST ? "border-red-400/40 bg-red-400/20" : "border-white/5 bg-white/5"
           )}>
-            <ThumbsDown className={cn("w-5 h-5", sentiment === Sentiment.AGAINST ? "text-black" : "text-slate-800")} />
+            <ThumbsDown className={cn("w-5 h-5", sentiment === Sentiment.AGAINST ? "text-red-400" : "text-slate-800")} />
           </div>
           <span className="text-[10px] font-black uppercase tracking-[0.2em] font-sans">AGAINST</span>
         </motion.button>
