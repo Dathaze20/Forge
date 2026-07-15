@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Sentiment } from '../types';
-import { ThumbsUp, ThumbsDown, Hexagon, Activity, Bolt } from 'lucide-react';
+import { ThumbsUp, ThumbsDown, Activity, Bolt } from 'lucide-react';
 import { clsx, type ClassValue } from 'clsx';
 import { twMerge } from 'tailwind-merge';
 
@@ -155,14 +155,14 @@ export const InputSection = ({ value, onChange, onSubmit, sentiment, onSentiment
         disabled={!value.trim()}
         className="w-full group h-24 rounded-[2rem] transition-all duration-500 border border-white/[0.08] overflow-hidden flex shrink-0 pointer-events-auto relative bg-[#0d1423] hover:bg-[#121c33] hover:border-cyan-500/20 active:scale-[0.99]"
       >
-        <div className="w-24 bg-black/40 flex items-center justify-center shrink-0 border-r border-white/5 z-10">
-          <div className="w-12 h-12 rounded-xl flex items-center justify-center border border-white/10 bg-white/5">
-            <Bolt className="w-7 h-7 text-slate-700 group-hover:text-cyan-500" />
+        <div className="w-20 bg-black/40 flex items-center justify-center shrink-0 border-r border-white/5 z-10">
+          <div className="w-11 h-11 rounded-xl flex items-center justify-center border border-white/10 bg-white/5">
+            <Bolt className="w-6 h-6 text-slate-700 group-hover:text-cyan-500" />
           </div>
         </div>
-        <div className="flex-1 flex flex-col items-start justify-center px-8 text-left z-10">
-          <span className="text-[10px] font-mono font-black text-slate-700 tracking-[0.4em] mb-1 uppercase group-hover:text-slate-500 transition-colors">INITIATE ARCHIVE FORGE</span>
-          <h2 className="text-4xl font-[1000] italic uppercase tracking-tighter leading-none font-sans text-white group-hover:text-cyan-400">
+        <div className="flex-1 min-w-0 flex flex-col items-start justify-center px-5 text-left z-10">
+          <span className="text-[9px] font-mono font-black text-slate-700 tracking-[0.15em] mb-1 uppercase group-hover:text-slate-500 transition-colors truncate max-w-full">INITIATE ARCHIVE FORGE</span>
+          <h2 className="text-3xl font-[1000] italic uppercase tracking-tighter leading-none font-sans text-white group-hover:text-cyan-400 truncate max-w-full">
             GENERATE
           </h2>
         </div>
