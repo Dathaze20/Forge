@@ -1,20 +1,38 @@
-<div align="center">
-<img width="1200" height="475" alt="GHBanner" src="https://ai.google.dev/static/site-assets/images/share-ais-513315318.png" />
-</div>
+# PostPilot
 
-# Run and deploy your AI Studio app
+One-tap forensic blog post generator, powered by Gemini. Give it notes on a subject, pick a stance, and it forges a long-form biographical article plus YouTube and Medium metadata &mdash; entirely in your browser.
 
-This contains everything you need to run your app locally.
+## How It Works
 
-View your app in AI Studio: https://ai.studio/apps/cac9fcfb-a086-4393-9294-52b9c0b18562
+Everything runs client-side. There is no backend: your Gemini API key is entered once in Settings, saved only in your browser's local storage, and used to call Gemini directly. No files or keys are ever sent to any other server.
 
 ## Run Locally
 
-**Prerequisites:**  Node.js
+**Prerequisites:** Node.js 18+
 
+```bash
+npm install
+npm run dev
+```
 
-1. Install dependencies:
-   `npm install`
-2. Set the `GEMINI_API_KEY` in [.env.local](.env.local) to your Gemini API key
-3. Run the app:
-   `npm run dev`
+Open `http://localhost:3000`, tap the key icon, and paste a Gemini API key (get one free at [aistudio.google.com/apikey](https://aistudio.google.com/apikey)).
+
+## Build for Production
+
+```bash
+npm run build
+```
+
+The built files land in `dist/`, ready for static hosting.
+
+## Deployment
+
+This repo deploys to GitHub Pages automatically via `.github/workflows/deploy.yml` on every push to `main`. Enable it once under **Settings &gt; Pages &gt; Source: GitHub Actions** if it isn't already active.
+
+## Mobile
+
+Open the deployed URL in Chrome on Android and use **Add to Home Screen** to install it as a standalone app &mdash; it's a full PWA (installable icon, offline app shell, wake lock during generation, haptic feedback).
+
+## Privacy
+
+Your Gemini API key lives only in your browser's local storage. Notes and generated content are never sent anywhere except directly to Google's Gemini API.

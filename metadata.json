@@ -2,5 +2,5 @@
   "name": "PostPilot (Forge V2.6)",
   "description": "The high-fidelity synthesis engine for cultural critic Abel Arroyo. Forensic biographical dossiers and long-meta long-form narratives.",
   "requestFramePermissions": [],
-  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+  "majorCapabilities": ["MAJOR_CAPABILITY_CLIENT_SIDE_GEMINI_API"]
 }
