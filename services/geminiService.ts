@@ -1,4 +1,4 @@
-import { Sentiment, GenerationUpdate, GroundingSource } from "../types";
+import { Sentiment, GenerationUpdate } from "../types";
 import { getApiKey } from "../lib/apiKey";
 
 const MODELS_TO_TRY = [
@@ -36,7 +36,7 @@ export const generateBlogPost = async (
 
 RESEARCH INSTRUCTIONS
 
-Before writing anything, use Google Search to find the most current and relevant information about the subject. Search for recent news, current status as of ${currentDate}, any ${currentYear - 1} or ${currentYear} developments, recent interviews, newly declassified documents, recent clinical trials, recent legal decisions, recent deaths, recent awards, or any current hook that connects the subject to today's world. The most current verifiable fact should anchor the opening hook and the legacy section. Search for the subject's full biography, verified quotes, specific dates, specific dollar amounts, specific locations, specific names of colleagues and adversaries, and any institutional betrayal or suppression documented in the public record. Every claim must be sourced from official records, verified journalism, peer-reviewed publications, congressional testimony, or primary documents. No speculation. No conspiracy allegations presented as fact. Receipts not fluff.
+Draw on everything you already know about the subject: recent news up to your knowledge cutoff, verified biography, dates, dollar amounts, locations, names of colleagues and adversaries, and any institutional betrayal or suppression documented in the public record. Every claim must be sourced from what is genuinely documented. No speculation. No conspiracy allegations presented as fact. Receipts not fluff.
 
 TITLE FORMAT
 
@@ -52,7 +52,7 @@ Example: He synthesized 179 compounds no government had ever classified, publish
 
 OPENING HOOK PARAGRAPH
 
-This paragraph is unlabeled. It appears before THE ORIGIN STORY. Never start with a year-based statement such as the current year is or in ${currentYear}. Never start with a general introduction to the subject's importance. Open with the single most dramatic specific human fact available. A specific date. A specific location. A specific dollar amount. A specific quote. A specific action. The opening must establish the stakes immediately and connect to why this matters right now on ${currentDate}. The most current verified development goes here. End the opening hook by telling the reader what this piece is: this is the forensic audit of [subject name].
+This paragraph is unlabeled. It appears before THE ORIGIN STORY. Never start with a year-based statement such as the current year is or in ${currentYear}. Never start with a general introduction to the subject's importance. Open with the single most dramatic specific human fact available. A specific date. A specific location. A specific dollar amount. A specific quote. A specific action. The opening must establish the stakes immediately. End the opening hook by telling the reader what this piece is: this is the forensic audit of [subject name].
 
 FIVE PART STRUCTURE
 
@@ -72,7 +72,7 @@ THE BODY OF WORK covers the full documented output, the specific achievements, t
 
 THE TRAGEDY covers the documented institutional betrayal, personal destruction, suppression, or human cost. Not death alone. The systemic forces that destroyed, ignored, exploited, or erased them while profiting from what they built.
 
-THE LEGACY AND THE VAULT covers the current status as of ${currentDate}, the ${currentYear - 1} and ${currentYear} developments, what their work looks like now, who is still building on it, who is still profiting from it without credit, and what remains unresolved or classified.
+THE LEGACY AND THE VAULT covers the current status as of ${currentDate} as best documented, what their work looks like now, who is still building on it, who is still profiting from it without credit, and what remains unresolved or classified.
 
 SENTIMENT STANCE
 
@@ -117,7 +117,7 @@ DESCRIPTION: [Forensic summary]
   let lastErrStr = "";
   let lastWasRetryable = false;
 
-  onUpdate({ thought: "INITIALIZING FORENSIC ENGINE... SEARCHING LIVE RECORDS..." });
+  onUpdate({ thought: "INITIALIZING FORENSIC ENGINE..." });
 
   for (const currentModel of MODELS_TO_TRY) {
     for (let attempt = 0; attempt < MAX_ATTEMPTS_PER_MODEL; attempt++) {
@@ -135,13 +135,12 @@ DESCRIPTION: [Forensic summary]
 
  SENTIMENT STANCE: ${stanceMap[sentiment as keyof typeof stanceMap] || 'FORENSIC OBJECTIVITY'}
 
- INSTRUCTION: SEARCH THE WEB FOR CURRENT, VERIFIED INFORMATION FIRST. THEN INITIATE FULL SYSTEMIC SYNTHESIS FOR ${currentDate}. EXHAUST ALL TECHNICAL PARAMETERS.`
+ INSTRUCTION: INITIATE FULL SYSTEMIC SYNTHESIS FOR ${currentDate}. EXHAUST ALL TECHNICAL PARAMETERS.`
             }]
           }],
           config: {
             temperature: 0.8,
             systemInstruction,
-            tools: [{ googleSearch: {} }],
             ...(currentModel.startsWith("gemini-3") ? { thinkingConfig: { thinkingLevel: ThinkingLevel.LOW } } : {}),
           },
         });
@@ -150,14 +149,25 @@ DESCRIPTION: [Forensic summary]
         const errStr = err?.message || String(err);
         console.warn(`[Forge System] Attempt ${attempt + 1} for model ${currentModel} failed:`, errStr);
 
-        const isRetryable = errStr.includes("503") ||
-          errStr.includes("UNAVAILABLE") ||
-          errStr.includes("429") ||
+        const isRateLimited = errStr.includes("429") ||
           errStr.includes("RESOURCE_EXHAUSTED") ||
           errStr.includes("quota");
 
+        const isRetryable = isRateLimited ||
+          errStr.includes("503") ||
+          errStr.includes("UNAVAILABLE");
+
         lastErrStr = errStr;
         lastWasRetryable = isRetryable;
+
+        // A 429/quota hit means this account is at its rate limit right now -
+        // retrying the same model within seconds almost never succeeds and
+        // just burns more of a very small per-minute budget. Move straight to
+        // the next model instead of spending the retry budget re-hitting a
+        // limit that hasn't cleared.
+        if (isRateLimited) {
+          break;
+        }
 
         if (isRetryable && attempt < MAX_ATTEMPTS_PER_MODEL - 1) {
           await new Promise((resolve) => setTimeout(resolve, delayMs));
@@ -188,24 +198,14 @@ DESCRIPTION: [Forensic summary]
   }
 
   let fullContent = "";
-  const sourceMap = new Map<string, GroundingSource>();
 
   for await (const chunk of result) {
     const text = chunk.text;
     if (text) {
       fullContent += text;
-      onUpdate({ content: fullContent, thought: "SEARCHING LIVE RECORDS AND SYNTHESIZING..." });
-    }
-
-    const chunks = chunk.candidates?.[0]?.groundingMetadata?.groundingChunks;
-    if (chunks) {
-      for (const c of chunks) {
-        if (c.web?.uri && !sourceMap.has(c.web.uri)) {
-          sourceMap.set(c.web.uri, { title: c.web.title || c.web.uri, uri: c.web.uri });
-        }
-      }
+      onUpdate({ content: fullContent, thought: "SYNTHESIZING..." });
     }
   }
 
-  onUpdate({ content: fullContent, sources: Array.from(sourceMap.values()), isComplete: true });
+  onUpdate({ content: fullContent, sources: [], isComplete: true });
 };

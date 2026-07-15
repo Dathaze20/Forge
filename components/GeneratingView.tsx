@@ -11,16 +11,14 @@ interface GeneratingViewProps {
 const TARGET_WORDS = 4750;
 const PREVIEW_CHARS = 900;
 
-// Live web search happens before any text streams back, so there can be a
-// genuine 10-60+ second gap with zero output. Without these, that gap reads
+// There can still be a several-second gap before the first token streams
+// back (model warm-up, retrying a busy model). Without these, that gap reads
 // as "frozen" instead of "working" - so the status text escalates over time
 // to keep the user oriented while nothing is visibly happening yet.
 const WAITING_MESSAGES: [seconds: number, message: string][] = [
   [0, 'INITIALIZING FORENSIC ENGINE...'],
-  [8, 'PERFORMING LIVE WEB RESEARCH...'],
-  [20, 'CROSS-REFERENCING VERIFIED SOURCES...'],
-  [35, 'DEEP RESEARCH IN PROGRESS, THIS CAN TAKE UP TO A MINUTE...'],
-  [60, 'STILL SEARCHING - THOROUGH FACT-CHECKING TAKES TIME...'],
+  [8, 'CONNECTING TO SYNTHESIS ENGINE...'],
+  [20, 'STILL WORKING, THIS CAN TAKE A MOMENT...'],
 ];
 
 export const GeneratingView = ({ content, thought, onCancel }: GeneratingViewProps) => {
