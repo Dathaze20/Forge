@@ -12,14 +12,16 @@ interface InputSectionProps {
   value: string;
   onChange: (value: string) => void;
   onSubmit: () => void;
-  isLoading: boolean;
   sentiment: Sentiment;
   onSentimentChange: (sentiment: Sentiment) => void;
+  hasKey: boolean;
+  onOpenSettings: () => void;
 }
 
 import { motion } from 'motion/react';
+import { KeyRound } from 'lucide-react';
 
-export const InputSection = ({ value, onChange, onSubmit, isLoading, sentiment, onSentimentChange }: InputSectionProps) => {
+export const InputSection = ({ value, onChange, onSubmit, sentiment, onSentimentChange, hasKey, onOpenSettings }: InputSectionProps) => {
   const bytes = new TextEncoder().encode(value).length;
   const isHighVolume = bytes > 500000;
   const isGiganticArchive = bytes > 2500000;
@@ -44,6 +46,16 @@ export const InputSection = ({ value, onChange, onSubmit, isLoading, sentiment, 
           placeholder={isGiganticArchive ? "GIGANTIC ARCHIVE DETECTED // PREPARING HYPER-DENSITY ANALYTICS..." : "ENTER SUBJECT DATA FOR ANALYSIS..."}
         />
         
+        {!hasKey && (
+          <button
+            onClick={onOpenSettings}
+            className="absolute top-6 left-6 flex items-center gap-2 px-4 py-2 rounded-xl bg-cyan-500/10 border border-cyan-500/40 text-[10px] font-black text-cyan-400 uppercase tracking-widest animate-pulse z-20"
+          >
+            <KeyRound className="w-3.5 h-3.5" />
+            Add API Key
+          </button>
+        )}
+
         {/* SMART PASTE BUTTON */}
         <button
           onClick={async () => {
@@ -121,40 +133,22 @@ export const InputSection = ({ value, onChange, onSubmit, isLoading, sentiment, 
       </div>
 
       <motion.button
-        whileHover={!isLoading && value.trim() ? { scale: 1.01 } : {}}
-        whileTap={!isLoading && value.trim() ? { scale: 0.99 } : {}}
+        whileHover={value.trim() ? { scale: 1.01 } : {}}
+        whileTap={value.trim() ? { scale: 0.99 } : {}}
         type="button"
         onClick={onSubmit}
-        disabled={isLoading || !value.trim()}
-        className={cn(
-          "w-full group h-24 rounded-[2rem] transition-all duration-500 border border-white/[0.08] overflow-hidden flex shrink-0 pointer-events-auto relative",
-          isLoading ? "cursor-not-allowed border-cyan-500/50" : "bg-[#0d1423] hover:bg-[#121c33] hover:border-cyan-500/20 active:scale-[0.99]"
-        )}
+        disabled={!value.trim()}
+        className="w-full group h-24 rounded-[2rem] transition-all duration-500 border border-white/[0.08] overflow-hidden flex shrink-0 pointer-events-auto relative bg-[#0d1423] hover:bg-[#121c33] hover:border-cyan-500/20 active:scale-[0.99]"
       >
-        {isLoading && (
-          <motion.div 
-            initial={{ left: '-100%' }}
-            animate={{ left: '100%' }}
-            transition={{ duration: 1.5, repeat: Infinity, ease: "linear" }}
-            className="absolute top-0 bottom-0 w-1/3 bg-gradient-to-r from-transparent via-cyan-500/20 to-transparent z-0"
-          />
-        )}
-        
         <div className="w-24 bg-black/40 flex items-center justify-center shrink-0 border-r border-white/5 z-10">
-          <div className={cn(
-            "w-12 h-12 rounded-xl flex items-center justify-center border transition-all duration-700",
-            isLoading ? "border-cyan-500/50 bg-cyan-500/20 shadow-[0_0_15px_rgba(6,182,212,0.3)]" : "border-white/10 bg-white/5"
-          )}>
-            <Bolt className={cn("w-7 h-7", isLoading ? "text-cyan-400 animate-pulse" : "text-slate-700 group-hover:text-cyan-500")} />
+          <div className="w-12 h-12 rounded-xl flex items-center justify-center border border-white/10 bg-white/5">
+            <Bolt className="w-7 h-7 text-slate-700 group-hover:text-cyan-500" />
           </div>
         </div>
         <div className="flex-1 flex flex-col items-start justify-center px-8 text-left z-10">
           <span className="text-[10px] font-mono font-black text-slate-700 tracking-[0.4em] mb-1 uppercase group-hover:text-slate-500 transition-colors">INITIATE ARCHIVE FORGE</span>
-          <h2 className={cn(
-            "text-4xl font-[1000] italic uppercase tracking-tighter leading-none font-sans",
-            isLoading ? "text-cyan-400 animate-pulse" : "text-white group-hover:text-cyan-400"
-          )}>
-            {isLoading ? 'FORGING...' : 'GENERATE'}
+          <h2 className="text-4xl font-[1000] italic uppercase tracking-tighter leading-none font-sans text-white group-hover:text-cyan-400">
+            GENERATE
           </h2>
         </div>
       </motion.button>

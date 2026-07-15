@@ -1,12 +1,15 @@
 import React, { useState, useRef, useEffect, useCallback } from 'react';
 import { Sentiment, AppState } from './types';
 import { generateBlogPost } from './services/geminiService';
+import { getApiKey } from './lib/apiKey';
 import { Logo } from './components/Logo';
 import { InputSection } from './components/InputSection';
+import { GeneratingView } from './components/GeneratingView';
 import { ResultsSection } from './components/ResultsSection';
+import { SettingsPanel } from './components/SettingsPanel';
 import { clsx, type ClassValue } from 'clsx';
 import { twMerge } from 'tailwind-merge';
-import { MessageSquare } from 'lucide-react';
+import { MessageSquare, KeyRound } from 'lucide-react';
 
 import { motion, AnimatePresence } from 'motion/react';
 
@@ -29,8 +32,16 @@ export default function App() {
   const [mediumMetadata, setMediumMetadata] = useState<{ tags: string[] } | undefined>();
 
   const [error, setError] = useState<string | null>(null);
+  const [showSettings, setShowSettings] = useState(false);
+  const [hasKey, setHasKey] = useState(() => !!getApiKey());
   const resultsRef = useRef<HTMLDivElement>(null);
   const wakeLockRef = useRef<WakeLockSentinel | null>(null);
+  const cancelledRef = useRef(false);
+
+  const closeSettings = useCallback(() => {
+    setShowSettings(false);
+    setHasKey(!!getApiKey());
+  }, []);
 
   // Keep the screen on while a generation is streaming (long-form output takes a while)
   useEffect(() => {
@@ -89,7 +100,14 @@ export default function App() {
     console.log("Handle generate called. Notes length:", notes.trim().length);
     if (!notes.trim()) return;
 
+    if (!getApiKey()) {
+      vibrate([50, 30, 50]);
+      setShowSettings(true);
+      return;
+    }
+
     vibrate(30);
+    cancelledRef.current = false;
     setAppState(AppState.GENERATING);
     setResult('');
     setThought('');
@@ -102,6 +120,7 @@ export default function App() {
         notes,
         sentiment,
         (update) => {
+          if (cancelledRef.current) return;
           if (update.content) {
             setResult(update.content);
             parseMetadata(update.content);
@@ -113,11 +132,12 @@ export default function App() {
           }
         }
       );
-      
+
       setTimeout(() => {
         resultsRef.current?.scrollIntoView({ behavior: 'smooth' });
       }, 100);
     } catch (err: any) {
+      if (cancelledRef.current) return;
       console.error("Generation error:", err);
       vibrate([100, 50, 100]);
       let userMessage = "NEURAL FORGE COLLAPSE: ANOMALY DETECTED.";
@@ -138,6 +158,12 @@ export default function App() {
     }
   };
 
+  const handleCancel = useCallback(() => {
+    cancelledRef.current = true;
+    vibrate(30);
+    setAppState(AppState.IDLE);
+  }, []);
+
   return (
     <div className="h-[100dvh] flex flex-col p-4 sm:p-6 max-w-lg mx-auto selection:bg-cyan-500 selection:text-white overflow-hidden bg-[#050a14] relative">
       {/* SCANNER BACKGROUND EFFECT */}
@@ -153,16 +179,29 @@ export default function App() {
 
       <header className="mb-4 flex justify-between items-center shrink-0 z-10 relative safe-pt">
         <Logo />
-        <a
-          href="https://github.com/Dathaze20/Forge/issues/new"
-          target="_blank"
-          rel="noopener noreferrer"
-          className="w-11 h-11 flex flex-col items-center justify-center glass-input rounded-xl border border-white/10 hover:border-cyan-500/50 active:scale-95 transition-all"
-          aria-label="Send feedback"
-          title="Send feedback"
-        >
-          <MessageSquare className="w-5 h-5 text-slate-500" />
-        </a>
+        <div className="flex items-center gap-2">
+          <button
+            onClick={() => setShowSettings(true)}
+            className={cn(
+              "w-11 h-11 flex flex-col items-center justify-center glass-input rounded-xl border transition-all active:scale-95",
+              hasKey ? "border-white/10 hover:border-cyan-500/50" : "border-cyan-500/60 shadow-[0_0_15px_rgba(6,182,212,0.2)]"
+            )}
+            aria-label="Gemini API key settings"
+            title="Gemini API key settings"
+          >
+            <KeyRound className={cn("w-5 h-5", hasKey ? "text-slate-500" : "text-cyan-400")} />
+          </button>
+          <a
+            href="https://github.com/Dathaze20/Forge/issues/new"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="w-11 h-11 flex flex-col items-center justify-center glass-input rounded-xl border border-white/10 hover:border-cyan-500/50 active:scale-95 transition-all"
+            aria-label="Send feedback"
+            title="Send feedback"
+          >
+            <MessageSquare className="w-5 h-5 text-slate-500" />
+          </a>
+        </div>
       </header>
 
       <main className="w-full flex-1 flex flex-col overflow-hidden relative min-h-0 z-10">
@@ -171,14 +210,19 @@ export default function App() {
           appState === AppState.COMPLETE ? "-translate-y-full opacity-0" : "translate-y-0 opacity-100"
         )}>
           <div className="flex-1 flex flex-col min-h-0">
-              <InputSection 
+            {appState === AppState.GENERATING ? (
+              <GeneratingView content={result} thought={thought} onCancel={handleCancel} />
+            ) : (
+              <InputSection
                 value={notes}
                 onChange={setNotes}
                 onSubmit={handleGenerate}
-                isLoading={appState === AppState.GENERATING}
                 sentiment={sentiment}
                 onSentimentChange={handleSentimentChange}
+                hasKey={hasKey}
+                onOpenSettings={() => setShowSettings(true)}
               />
+            )}
           </div>
         </div>
 
@@ -234,6 +278,8 @@ export default function App() {
         <div className="h-1.5 w-1.5 rounded-full bg-white/20" />
         <div className="h-1.5 w-1.5 rounded-full bg-white/10" />
       </footer>
+
+      <SettingsPanel open={showSettings} onClose={closeSettings} />
     </div>
   );
 }
