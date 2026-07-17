@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { X, KeyRound, ExternalLink, Check } from 'lucide-react';
 import { getApiKey, setApiKey } from '../lib/apiKey';
@@ -11,6 +11,13 @@ interface SettingsPanelProps {
 export const SettingsPanel = ({ open, onClose }: SettingsPanelProps) => {
   const [value, setValue] = useState(() => getApiKey());
   const [saved, setSaved] = useState(false);
+
+  // Reset any unsaved edits back to the actual stored key each time the
+  // panel opens, so a discarded draft from a previous visit never lingers
+  // and gets accidentally saved over the real key.
+  useEffect(() => {
+    if (open) setValue(getApiKey());
+  }, [open]);
 
   const handleSave = () => {
     setApiKey(value);

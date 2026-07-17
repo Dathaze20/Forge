@@ -140,7 +140,7 @@ export const ResultsSection = forwardRef<HTMLDivElement, ResultsSectionProps>(({
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 p-2 glass-input rounded-[1.75rem] border border-white/5">
           {[
             { label: 'WORD DENSITY', value: wordCount.toLocaleString(), color: 'text-white' },
-            { label: 'READ LATENCY', value: `${Math.ceil(wordCount / 200)}m`, color: 'text-white' },
+            { label: 'READ LATENCY', value: `${Math.ceil(wordCount / 265)}m`, color: 'text-white' },
             { label: 'NEURAL NODES', value: (sources.length || 12).toString(), color: 'text-cyan-400' },
             { label: 'TARGET DENSITY', value: `${Math.round((wordCount / 4750) * 100)}%`, color: 'text-indigo-400' },
           ].map((stat, i) => (

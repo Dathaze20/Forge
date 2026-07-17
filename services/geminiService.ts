@@ -146,6 +146,7 @@ DESCRIPTION: [Forensic summary]
   let delayMs = 1500;
   let lastErrStr = "";
   let lastWasRetryable = false;
+  let isAuthError = false;
 
   onUpdate({ thought: "INITIALIZING FORENSIC ENGINE..." });
 
@@ -189,6 +190,14 @@ DESCRIPTION: [Forensic summary]
 
         lastErrStr = errStr;
         lastWasRetryable = isRetryable;
+        isAuthError = errStr.includes("API_KEY_INVALID") || errStr.includes("API key not valid");
+
+        // An invalid key fails the same way on every model - swapping models
+        // can never fix it, so stop immediately instead of burning two more
+        // requests just to hit the same auth error again.
+        if (isAuthError) {
+          break;
+        }
 
         // A 429/quota hit means this account is at its rate limit right now -
         // retrying the same model within seconds almost never succeeds and
@@ -207,7 +216,7 @@ DESCRIPTION: [Forensic summary]
         }
       }
     }
-    if (result) break;
+    if (result || isAuthError) break;
   }
 
   if (!result) {
