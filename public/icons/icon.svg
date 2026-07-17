@@ -4,21 +4,13 @@
       <stop offset="0%" stop-color="#0d1423"/>
       <stop offset="100%" stop-color="#050a14"/>
     </linearGradient>
-    <linearGradient id="bolt" x1="0" y1="0" x2="1" y2="1">
-      <stop offset="0%" stop-color="#22d3ee"/>
-      <stop offset="100%" stop-color="#0891b2"/>
-    </linearGradient>
-    <filter id="glow" x="-50%" y="-50%" width="200%" height="200%">
-      <feGaussianBlur stdDeviation="10" result="blur"/>
-      <feMerge>
-        <feMergeNode in="blur"/>
-        <feMergeNode in="SourceGraphic"/>
-      </feMerge>
-    </filter>
+    <clipPath id="round">
+      <rect width="512" height="512" rx="96"/>
+    </clipPath>
   </defs>
-  <rect width="512" height="512" rx="96" fill="url(#bg)"/>
-  <rect x="8" y="8" width="496" height="496" rx="88" fill="none" stroke="#22d3ee" stroke-opacity="0.12" stroke-width="4"/>
-  <g filter="url(#glow)">
-    <polygon points="277,116 149,286 233,286 213,396 363,206 275,206 288,116" fill="url(#bolt)"/>
+  <g clip-path="url(#round)">
+    <rect width="512" height="512" fill="url(#bg)"/>
+    <image href="abel-arroyo.webp" x="0" y="0" width="512" height="512" preserveAspectRatio="xMidYMid slice"/>
   </g>
+  <rect x="8" y="8" width="496" height="496" rx="88" fill="none" stroke="#22d3ee" stroke-opacity="0.12" stroke-width="4"/>
 </svg>
