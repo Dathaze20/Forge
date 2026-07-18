@@ -16,6 +16,7 @@ const SECTION_HEADERS = new Set([
   'THE BODY OF WORK',
   'THE TRAGEDY',
   'THE LEGACY AND THE VAULT',
+  'ABOUT THE AUTHOR',
 ]);
 
 export const ResultsSection = forwardRef<HTMLDivElement, ResultsSectionProps>(({ content, sources, onNew }, ref) => {
