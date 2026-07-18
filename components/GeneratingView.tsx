@@ -57,7 +57,7 @@ export const GeneratingView = ({ content, thought, onCancel }: GeneratingViewPro
           />
         </div>
 
-        <div className="absolute top-0 left-0 right-0 flex items-center justify-between gap-2 px-4 py-2.5 bg-black/40 border-b border-white/5 z-10">
+        <div className="absolute top-0 left-0 right-0 flex items-center justify-between gap-2 px-4 py-2.5 bg-[#050a14]/95 border-b border-white/5 z-10">
           <div className="flex items-center gap-2 min-w-0">
             <div className="w-1.5 h-1.5 rounded-full bg-cyan-400 animate-pulse shadow-[0_0_8px_#22d3ee] shrink-0" />
             <span className="text-[9px] font-mono font-black text-cyan-400 uppercase tracking-[0.15em] truncate">Live Synthesis</span>

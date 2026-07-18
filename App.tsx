@@ -27,9 +27,6 @@ export default function App() {
   const [appState, setAppState] = useState<AppState>(AppState.IDLE);
   const [result, setResult] = useState<string>('');
   const [thought, setThought] = useState<string>('');
-
-  const [youtubeMetadata, setYoutubeMetadata] = useState<{ title: string; description: string; tags: string } | undefined>();
-  const [mediumMetadata, setMediumMetadata] = useState<{ tags: string[] } | undefined>();
   const [sources, setSources] = useState<GroundingSource[]>([]);
 
   const [error, setError] = useState<string | null>(null);
@@ -85,25 +82,6 @@ export default function App() {
     setSentiment(next);
   }, []);
 
-  const parseMetadata = (content: string) => {
-    // Parse YouTube Metadata
-    const ytMatch = content.match(/\[YT_METADATA\]([\s\S]*?)\[\/YT_METADATA\]/);
-    if (ytMatch) {
-      const ytLines = ytMatch[1].trim().split('\n');
-      const title = ytLines.find(l => l.startsWith('TITLE:'))?.replace('TITLE:', '').trim() || '';
-      const description = ytLines.find(l => l.startsWith('DESCRIPTION:'))?.replace('DESCRIPTION:', '').trim() || '';
-      const beats = ytLines.find(l => l.startsWith('BEATS:'))?.replace('BEATS:', '').trim() || '';
-      setYoutubeMetadata({ title, description, tags: beats });
-    }
-
-    // Parse Medium Tags
-    const mediumMatch = content.match(/\[MEDIUM_TAGS\]([\s\S]*?)\[\/MEDIUM_TAGS\]/);
-    if (mediumMatch) {
-       const tags = mediumMatch[1].trim().split('\n').filter(Boolean).map(t => t.replace(/^#/, '').trim());
-       setMediumMetadata({ tags });
-    }
-  };
-
   const handleGenerate = async () => {
     console.log("Handle generate called. Notes length:", notes.trim().length);
     if (!notes.trim()) return;
@@ -119,8 +97,6 @@ export default function App() {
     setAppState(AppState.GENERATING);
     setResult('');
     setThought('');
-    setYoutubeMetadata(undefined);
-    setMediumMetadata(undefined);
     setSources([]);
     setError(null);
 
@@ -132,7 +108,6 @@ export default function App() {
           if (cancelledRef.current) return;
           if (update.content) {
             setResult(update.content);
-            parseMetadata(update.content);
           }
           if (update.thought) setThought(update.thought);
           if (update.sources) setSources(update.sources);
@@ -205,8 +180,8 @@ export default function App() {
 
       <main className="w-full flex-1 flex flex-col overflow-hidden relative min-h-0 z-10">
         <div className={cn(
-          "flex-1 flex flex-col transition-all duration-700 ease-in-out",
-          appState === AppState.COMPLETE ? "-translate-y-full opacity-0" : "translate-y-0 opacity-100"
+          "flex-1 flex flex-col transition-opacity duration-500 ease-in-out",
+          appState === AppState.COMPLETE ? "opacity-0 pointer-events-none" : "opacity-100"
         )}>
           <div className="flex-1 flex flex-col min-h-0">
             {appState === AppState.GENERATING ? (
@@ -226,15 +201,12 @@ export default function App() {
         </div>
 
         <div className={cn(
-          "absolute inset-0 transition-all duration-700 ease-in-out px-1",
-          appState === AppState.COMPLETE ? "translate-y-0 opacity-100" : "translate-y-full opacity-0 pointer-events-none"
+          "absolute inset-0 transition-opacity duration-500 ease-in-out px-1",
+          appState === AppState.COMPLETE ? "opacity-100" : "opacity-0 pointer-events-none"
         )}>
           <div className="h-full overflow-y-auto custom-scrollbar pt-2" ref={resultsRef}>
             <ResultsSection
               content={result}
-              thought={thought}
-              youtubeMetadata={youtubeMetadata}
-              mediumMetadata={mediumMetadata}
               sources={sources}
               onNew={() => {
                 vibrate(15);
@@ -242,8 +214,6 @@ export default function App() {
                 setNotes('');
                 setResult('');
                 setThought('');
-                setYoutubeMetadata(undefined);
-                setMediumMetadata(undefined);
                 setSources([]);
               }}
             />

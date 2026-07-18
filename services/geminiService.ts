@@ -128,17 +128,7 @@ End every piece with this exact text with no changes:
 
 Abel Arroyo is a cultural critic and forensic biographer dedicated to the Intellectual Resistance, the creators, whistleblowers, and truth tellers who broke the machine to save their souls. His work interrogates the intersection of power, suppressed knowledge, and human cost, providing rigorous examination of the systems and figures that define how we understand existence. If you find value in these deep dives into the architects of modern dissent, consider supporting independent journalism. buymeacoffee.com/dathaze20j
 
-METADATA BLOCKS (MANDATORY AT THE END, AFTER THE ABOUT THE AUTHOR TEXT)
-
-[YT_METADATA]
-TITLE: [High-retention technical title]
-BEATS: [10 subject-specific beats]
-DESCRIPTION: [Forensic summary]
-[/YT_METADATA]
-
-[MEDIUM_TAGS]
-[Exactly 5 Medium tags, since Medium caps posts at 5 tags. High-traffic, subject-specific.]
-[/MEDIUM_TAGS]`;
+Do not output anything after the About the Author text. No metadata blocks, no tags, no additional sections.`;
 
   const ai = new GoogleGenAI({ apiKey });
 
