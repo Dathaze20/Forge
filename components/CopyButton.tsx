@@ -2,6 +2,10 @@ import React, { useState } from 'react';
 import { Clipboard, Check } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 
+function vibrate(pattern: number | number[]) {
+  try { navigator.vibrate?.(pattern); } catch {}
+}
+
 interface CopyButtonProps {
   content: string;
   label?: string;
@@ -14,9 +18,11 @@ export const CopyButton = ({ content, label }: CopyButtonProps) => {
     try {
       await navigator.clipboard.writeText(content);
       setCopied(true);
+      vibrate(15);
       setTimeout(() => setCopied(false), 2000);
     } catch (err) {
       console.error('Failed to copy text: ', err);
+      vibrate([50, 30, 50]);
     }
   };
 

@@ -142,6 +142,7 @@ Do not output anything after the About the Author text. No metadata blocks, no t
 
   for (const currentModel of MODELS_TO_TRY) {
     for (let attempt = 0; attempt < MAX_ATTEMPTS_PER_MODEL; attempt++) {
+      onUpdate({ thought: `CONNECTING TO ${currentModel.toUpperCase()}${attempt > 0 ? ` (RETRY ${attempt + 1})` : ''}...` });
       try {
         result = await ai.models.generateContentStream({
           model: currentModel,
@@ -195,10 +196,12 @@ Do not output anything after the About the Author text. No metadata blocks, no t
         // the next model instead of spending the retry budget re-hitting a
         // limit that hasn't cleared.
         if (isRateLimited) {
+          onUpdate({ thought: `${currentModel.toUpperCase()} AT CAPACITY, SWITCHING MODELS...` });
           break;
         }
 
         if (isRetryable && attempt < MAX_ATTEMPTS_PER_MODEL - 1) {
+          onUpdate({ thought: `${currentModel.toUpperCase()} BUSY, RETRYING IN ${Math.round(delayMs / 1000)}S...` });
           await new Promise((resolve) => setTimeout(resolve, delayMs));
           delayMs *= 2;
         } else {
