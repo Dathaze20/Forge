@@ -166,7 +166,7 @@ export const InputSection = ({ value, onChange, onSubmit, sentiment, onSentiment
           "w-full group h-24 rounded-[2rem] transition-all duration-500 overflow-hidden flex shrink-0 pointer-events-auto relative active:scale-[0.99]",
           isReady
             ? "border border-cyan-300/40 bg-gradient-to-r from-cyan-500 via-cyan-400 to-indigo-500 shadow-[0_0_40px_rgba(6,182,212,0.35)]"
-            : "border border-white/[0.08] bg-[#0d1423] hover:bg-[#121c33] hover:border-cyan-500/20"
+            : "border border-cyan-500/20 bg-[#0d1423] shadow-[0_0_25px_rgba(6,182,212,0.1)] hover:bg-[#121c33] hover:border-cyan-500/40 hover:shadow-[0_0_35px_rgba(6,182,212,0.18)]"
         )}
       >
         <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-cyan-400/40 to-transparent pointer-events-none z-10" />
