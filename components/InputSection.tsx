@@ -169,6 +169,7 @@ export const InputSection = ({ value, onChange, onSubmit, sentiment, onSentiment
             : "border border-white/[0.08] bg-[#0d1423] hover:bg-[#121c33] hover:border-cyan-500/20"
         )}
       >
+        <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-cyan-400/40 to-transparent pointer-events-none z-10" />
         {isReady && (
           <motion.div
             animate={{ x: ['-120%', '220%'] }}
@@ -180,12 +181,16 @@ export const InputSection = ({ value, onChange, onSubmit, sentiment, onSentiment
           "w-20 flex items-center justify-center shrink-0 border-r z-10 transition-colors duration-500",
           isReady ? "bg-black/10 border-white/10" : "bg-black/40 border-white/5"
         )}>
-          <div className={cn(
-            "w-11 h-11 rounded-xl flex items-center justify-center border transition-all duration-500",
-            isReady ? "border-white/30 bg-white/10" : "border-white/10 bg-white/5"
-          )}>
+          <motion.div
+            animate={isReady ? {} : { boxShadow: ['0 0 0px rgba(34,211,238,0)', '0 0 14px rgba(34,211,238,0.35)', '0 0 0px rgba(34,211,238,0)'] }}
+            transition={{ duration: 3, repeat: Infinity, ease: 'easeInOut' }}
+            className={cn(
+              "w-11 h-11 rounded-xl flex items-center justify-center border transition-all duration-500",
+              isReady ? "border-white/30 bg-white/10" : "border-white/10 bg-white/5"
+            )}
+          >
             <Bolt className={cn("w-6 h-6 transition-colors", isReady ? "text-white" : "text-slate-700 group-hover:text-cyan-500")} />
-          </div>
+          </motion.div>
         </div>
         <div className="flex-1 min-w-0 flex flex-col items-start justify-center px-5 text-left z-10">
           <span className={cn(
