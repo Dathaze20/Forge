@@ -159,7 +159,7 @@ export const InputSection = ({ value, onChange, onSubmit, sentiment, onSentiment
         whileHover={isReady ? { scale: 1.01 } : {}}
         whileTap={isReady ? { scale: 0.99 } : {}}
         type="button"
-        onClick={onSubmit}
+        onClick={() => { vibrate(15); onSubmit(); }}
         disabled={!isReady}
         aria-label="Generate blog post"
         className={cn(

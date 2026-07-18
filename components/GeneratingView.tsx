@@ -41,7 +41,10 @@ export const GeneratingView = ({ content, thought, onCancel }: GeneratingViewPro
   const waitingMessage = isWaitingForFirstToken
     ? [...WAITING_MESSAGES].reverse().find(([seconds]) => elapsed >= seconds)?.[1]
     : null;
-  const statusText = waitingMessage || thought || 'Initializing...';
+  // Prefer the live status coming from the actual generation attempt (which
+  // model is being tried, whether it's retrying) - the time-based messages
+  // are only a fallback for the rare case nothing has reported in yet.
+  const statusText = thought || waitingMessage || 'Initializing...';
 
   return (
     <div className="flex-1 flex flex-col gap-4 min-h-0 py-2">

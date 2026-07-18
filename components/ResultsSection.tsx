@@ -112,14 +112,16 @@ export const ResultsSection = forwardRef<HTMLDivElement, ResultsSectionProps>(({
           ))}
         </div>
 
-        <div className="px-1">
+        <div className="flex items-center justify-between px-1 gap-2">
           <button
             onClick={onNew}
-            className="flex items-center gap-2 px-4 py-2.5 rounded-full bg-slate-900 border border-white/10 text-[10px] font-black text-slate-400 uppercase tracking-widest hover:border-cyan-500/50 hover:text-cyan-400 transition-all active:scale-95 group"
+            aria-label="Start a new article"
+            title="Start a new article"
+            className="w-9 h-9 flex items-center justify-center rounded-full bg-slate-900 border border-white/10 text-slate-500 hover:text-white hover:border-white/30 transition-all active:scale-95 group shrink-0"
           >
             <RotateCcw className="w-3.5 h-3.5 group-hover:rotate-[-90deg] transition-transform" />
-            New
           </button>
+          <CopyButton content={content} label="COPY ARTICLE" />
         </div>
       </div>
 
@@ -139,13 +141,7 @@ export const ResultsSection = forwardRef<HTMLDivElement, ResultsSectionProps>(({
             {parseContent(content)}
           </div>
 
-          <div className="mt-24 flex justify-center sticky bottom-0 pb-12 pt-6 bg-gradient-to-t from-[#0a0f1d] via-[#0a0f1d]/90 to-transparent z-20">
-            <div className="p-1 rounded-full bg-white/5 border border-white/10 backdrop-blur-md shadow-2xl">
-              <CopyButton content={content} label="COPY ARTICLE" />
-            </div>
-          </div>
-
-          <div className="mt-12 pt-16 border-t font-mono border-white/5 flex flex-col sm:flex-row items-center justify-between gap-8 opacity-40">
+          <div className="mt-24 pt-16 border-t font-mono border-white/5 flex flex-col sm:flex-row items-center justify-between gap-8 opacity-40">
             <div className="flex items-center gap-4">
               <div className="w-12 h-12 rounded-full border border-white/20 overflow-hidden shrink-0">
                 <img src="./icons/abel-arroyo.webp" alt="Abel Arroyo" className="w-full h-full object-cover" />
