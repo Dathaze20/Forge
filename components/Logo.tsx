@@ -13,11 +13,6 @@ export const Logo = () => (
     </div>
     <div className="flex flex-col justify-center min-w-0">
       <h1 className="text-xl sm:text-2xl font-[1000] italic tracking-tighter leading-none text-white font-sans group-hover:text-cyan-400 transition-colors duration-500 truncate pr-1">ABEL ARROYO</h1>
-      <div className="flex items-center gap-1.5 mt-0.5 min-w-0">
-        <span className="text-[7px] font-mono font-black text-cyan-500 tracking-[0.15em] uppercase shrink-0">SYS_FORGE</span>
-        <div className="w-1 h-1 rounded-full bg-cyan-500 animate-pulse shrink-0" />
-        <span className="text-[7px] font-mono font-black text-slate-600 tracking-[0.15em] uppercase group-hover:text-slate-400 transition-colors truncate">FORGE_V2.6</span>
-      </div>
     </div>
   </motion.div>
 );
