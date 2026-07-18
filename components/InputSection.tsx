@@ -119,7 +119,7 @@ export const InputSection = ({ value, onChange, onSubmit, sentiment, onSentiment
             "flex flex-col items-center justify-center gap-3 rounded-[1.5rem] border transition-all duration-300 pointer-events-auto",
             sentiment === Sentiment.FOR
               ? "border-cyan-400 bg-cyan-400/[0.05] text-cyan-400 shadow-[0_0_20px_rgba(34,211,238,0.1)]"
-              : "bg-[#0d1423] border-white/[0.03] text-slate-600 hover:border-white/10"
+              : "bg-[#0d1423] border-white/[0.03] text-slate-400 hover:border-white/10"
           )}
         >
           <div className={cn(
@@ -142,7 +142,7 @@ export const InputSection = ({ value, onChange, onSubmit, sentiment, onSentiment
             "flex flex-col items-center justify-center gap-3 rounded-[1.5rem] border transition-all duration-300 pointer-events-auto",
             sentiment === Sentiment.AGAINST
               ? "border-red-400/80 bg-red-400/[0.05] text-red-400 shadow-[0_0_20px_rgba(239,68,68,0.1)]"
-              : "bg-[#0d1423] border-white/[0.03] text-slate-600 hover:border-white/10"
+              : "bg-[#0d1423] border-white/[0.03] text-slate-400 hover:border-white/10"
           )}
         >
           <div className={cn(
@@ -189,13 +189,13 @@ export const InputSection = ({ value, onChange, onSubmit, sentiment, onSentiment
               isReady ? "border-white/30 bg-white/10" : "border-white/10 bg-white/5"
             )}
           >
-            <Bolt className={cn("w-6 h-6 transition-colors", isReady ? "text-white" : "text-slate-700 group-hover:text-cyan-500")} />
+            <Bolt className={cn("w-6 h-6 transition-colors", isReady ? "text-white" : "text-slate-600 group-hover:text-cyan-500")} />
           </motion.div>
         </div>
         <div className="flex-1 min-w-0 flex flex-col items-start justify-center px-5 text-left z-10">
           <span className={cn(
             "text-[9px] font-mono font-black tracking-[0.15em] mb-1 uppercase transition-colors truncate max-w-full",
-            isReady ? "text-black/50" : "text-slate-700 group-hover:text-slate-500"
+            isReady ? "text-black/50" : "text-slate-500 group-hover:text-slate-400"
           )}>INITIATE ARCHIVE FORGE</span>
           <h2 className={cn(
             "text-3xl font-[1000] italic uppercase tracking-tighter leading-none font-sans truncate max-w-full pr-1 transition-colors",
