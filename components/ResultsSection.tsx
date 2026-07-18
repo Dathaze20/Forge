@@ -36,6 +36,7 @@ const stripMetadataBlocks = (text: string) => text
   .trim();
 
 export const ResultsSection = forwardRef<HTMLDivElement, ResultsSectionProps>(({ content, thought, youtubeMetadata, mediumMetadata, sources, onNew }, ref) => {
+  const currentYear = useMemo(() => new Date().getFullYear(), []);
   const wordCount = useMemo(() => content.split(/\s+/).filter(Boolean).length, [content]);
   const cleanContent = useMemo(() => stripMetadataBlocks(content), [content]);
   const [tab, setTab] = useState<Tab>('article');
@@ -216,13 +217,15 @@ export const ResultsSection = forwardRef<HTMLDivElement, ResultsSectionProps>(({
 
             <div className="mt-12 pt-16 border-t font-mono border-white/5 flex flex-col sm:flex-row items-center justify-between gap-8 opacity-40">
               <div className="flex items-center gap-4">
-                <div className="w-12 h-12 rounded-full border border-white/20 flex items-center justify-center text-[10px] font-bold">AA</div>
+                <div className="w-12 h-12 rounded-full border border-white/20 overflow-hidden shrink-0">
+                  <img src="./icons/abel-arroyo.webp" alt="Abel Arroyo" className="w-full h-full object-cover" />
+                </div>
                 <div className="flex flex-col">
                   <span className="text-[10px] font-black uppercase tracking-widest">Abel Arroyo</span>
                   <span className="text-[9px] uppercase tracking-widest">Chief Cultural Biographer</span>
                 </div>
               </div>
-              <div className="text-[9px] uppercase tracking-[0.15em] font-black">GOLDEN GEMS ARCHIVES // 2026</div>
+              <div className="text-[9px] uppercase tracking-[0.15em] font-black">GOLDEN GEMS ARCHIVES // {currentYear}</div>
             </div>
           </motion.article>
         )}
@@ -249,11 +252,11 @@ export const ResultsSection = forwardRef<HTMLDivElement, ResultsSectionProps>(({
 
               <div className="space-y-5">
                 <div>
-                  <span className="text-[8px] font-black text-slate-600 uppercase tracking-widest block mb-2">NEURAL TITLE</span>
+                  <span className="text-[8px] font-black text-slate-500 uppercase tracking-widest block mb-2">NEURAL TITLE</span>
                   <p className="text-sm font-bold text-white tracking-tight leading-relaxed">{youtubeMetadata?.title || 'TITLING PENDING...'}</p>
                 </div>
                 <div>
-                  <span className="text-[8px] font-black text-slate-600 uppercase tracking-widest block mb-2">FORENSIC DESCRIPTION</span>
+                  <span className="text-[8px] font-black text-slate-500 uppercase tracking-widest block mb-2">FORENSIC DESCRIPTION</span>
                   <p className="text-[10px] font-mono text-slate-500 leading-relaxed whitespace-pre-wrap">
                     {youtubeMetadata?.description || 'GENERATING OPTIMIZED METADATA...'}
                   </p>

@@ -46,6 +46,17 @@ export const GeneratingView = ({ content, thought, onCancel }: GeneratingViewPro
   return (
     <div className="flex-1 flex flex-col gap-4 min-h-0 py-2">
       <div className="flex-1 min-h-0 rounded-[1.75rem] border border-cyan-500/20 bg-black/60 relative overflow-hidden">
+        {/* Ambient texture matching the app shell's scanner background, so this
+            screen doesn't read as flatter/less finished than the others. */}
+        <div className="absolute inset-0 pointer-events-none opacity-[0.04] overflow-hidden">
+          <div className="absolute inset-0 bg-[linear-gradient(to_right,#888_1px,transparent_1px),linear-gradient(to_bottom,#888_1px,transparent_1px)] bg-[size:32px_32px]" />
+          <motion.div
+            animate={{ top: ['-20%', '120%'] }}
+            transition={{ duration: 6, repeat: Infinity, ease: 'linear' }}
+            className="absolute left-0 w-full h-[25%] bg-gradient-to-b from-transparent via-cyan-400 to-transparent opacity-40"
+          />
+        </div>
+
         <div className="absolute top-0 left-0 right-0 flex items-center justify-between gap-2 px-4 py-2.5 bg-black/40 border-b border-white/5 z-10">
           <div className="flex items-center gap-2 min-w-0">
             <div className="w-1.5 h-1.5 rounded-full bg-cyan-400 animate-pulse shadow-[0_0_8px_#22d3ee] shrink-0" />
@@ -101,7 +112,7 @@ export const GeneratingView = ({ content, thought, onCancel }: GeneratingViewPro
           )}
         </div>
 
-        <p className="text-[10px] text-slate-600 text-center uppercase tracking-widest flex items-center justify-center gap-1.5">
+        <p className="text-[10px] text-slate-500 text-center uppercase tracking-widest flex items-center justify-center gap-1.5">
           <Zap className="w-3 h-3" />
           Keep this tab open &middot; Screen will stay on
         </p>
