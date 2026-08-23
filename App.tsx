@@ -83,7 +83,6 @@ export default function App() {
   }, []);
 
   const handleGenerate = async () => {
-    console.log("Handle generate called. Notes length:", notes.trim().length);
     if (!notes.trim()) return;
 
     if (!getApiKey()) {

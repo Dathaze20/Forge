@@ -64,7 +64,7 @@ export const SettingsPanel = ({ open, onClose }: SettingsPanelProps) => {
             </div>
 
             <p className="text-xs text-slate-500 leading-relaxed mb-5">
-              PostPilot runs entirely in your browser. Your key is stored only on this device and is sent
+              This app runs entirely in your browser. Your key is stored only on this device and is sent
               directly to Google's API &mdash; never to any other server.
             </p>
 
