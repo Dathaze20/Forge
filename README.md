@@ -1,6 +1,6 @@
-# PostPilot
+# Abel Arroyo Forge
 
-One-tap forensic blog post generator, powered by Gemini. Give it notes on a subject, pick a stance, and it forges a long-form biographical article plus YouTube and Medium metadata &mdash; entirely in your browser.
+One-tap forensic blog post generator, powered by Gemini. Give it notes on a subject, pick a stance, and it forges a long-form Medium-ready biographical article &mdash; entirely in your browser.
 
 ## How It Works
 

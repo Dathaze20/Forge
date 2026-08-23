@@ -1,4 +1,4 @@
-const CACHE_NAME = 'postpilot-v1';
+const CACHE_NAME = 'abel-arroyo-forge-v1';
 const STATIC_ASSETS = [
   './',
   './index.html'

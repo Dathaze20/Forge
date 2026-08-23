@@ -12,14 +12,6 @@ export interface GenerationResult {
   content: string;
   thought?: string;
   sources: GroundingSource[];
-  youtubeMetadata?: {
-    title: string;
-    description: string;
-    tags: string;
-  };
-  mediumMetadata?: {
-    tags: string[];
-  };
 }
 
 export type GenerationUpdate = (data: Partial<GenerationResult> & { isComplete?: boolean }) => void;
@@ -27,6 +19,5 @@ export type GenerationUpdate = (data: Partial<GenerationResult> & { isComplete?:
 export enum AppState {
   IDLE = 'IDLE',
   GENERATING = 'GENERATING',
-  COMPLETE = 'COMPLETE',
-  ERROR = 'ERROR'
+  COMPLETE = 'COMPLETE'
 }

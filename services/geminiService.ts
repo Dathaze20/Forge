@@ -40,6 +40,8 @@ RESEARCH INSTRUCTIONS
 
 Draw on everything you already know about the subject: recent news up to your knowledge cutoff, verified biography, dates, dollar amounts, locations, names of colleagues and adversaries, and any institutional betrayal or suppression documented in the public record. Every claim must be sourced from what is genuinely documented. No speculation. No conspiracy allegations presented as fact. Receipts not fluff.
 
+Accuracy always outranks specificity. If you are not genuinely confident in an exact date, dollar figure, or quote, do not invent a precise sounding number or wording to fill the gap. Use only the specific details you are actually confident are correct, or describe the fact in accurate general terms instead of fabricating false precision. A fabricated specific fact is worse than an honest general one, because it undermines the forensic credibility the entire piece depends on. The density requirements elsewhere in these instructions describe how thoroughly to cover what is genuinely known, never a license to manufacture detail that is not.
+
 TITLE FORMAT
 
 ALL CAPS SUBJECT NAME followed by a colon followed by a short punchy statement of the most outrageous verified consequence of their life or work. Short. Specific. No dashes. No symbols. No question marks.
@@ -128,7 +130,7 @@ TITLE AND SUBTITLE VERIFICATION: Confirm the title is ALL CAPS subject name, col
 
 PROHIBITED ELEMENTS FINAL SCAN: Confirm the complete absence of dashes used as punctuation anywhere in prose, semicolons anywhere in prose, bold text, italic text, bullet points, numbered lists, any subheading other than the five official section headers and the ABOUT THE AUTHOR label, passive voice constructions where active voice is possible, vague abstractions without an immediate specific fact to prove them, a year-based opening such as the current year is or in ${currentYear}, and template phrases such as this is the forensic audit of.
 
-ABOUT THE AUTHOR FINAL CHECK: Confirm the label ABOUT THE AUTHOR appears on its own line immediately before the bio text. Confirm the bio text below appears exactly as written with no modifications, with the Buy Me a Coffee link present and correct, and no additional text after it. The About the Author paragraph follows the exact same no symbols rule as the body text: no commas, no apostrophes in contractions, no hyphens, no dashes, no semicolons, periods only. It must already read as clean flowing prose broken into short sentences instead of comma-linked clauses.
+ABOUT THE AUTHOR FINAL CHECK: Confirm the label ABOUT THE AUTHOR appears on its own line immediately before the bio text. Confirm the bio text below appears exactly as written with no modifications, with the Buy Me a Coffee link present and correct, and no additional text after it. The About the Author paragraph follows the exact same no symbols rule as the body text: no commas, no apostrophes in contractions, no hyphens, no dashes, no semicolons, periods only. It must already read as clean connected flowing prose built with words like and and while instead of commas, not as a series of short choppy fragments.
 
 ABOUT THE AUTHOR
 

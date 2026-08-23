@@ -1,5 +1,5 @@
 {
-  "name": "postpilot",
+  "name": "abel-arroyo-forge",
   "private": true,
   "version": "0.0.0",
   "type": "module",
@@ -13,10 +13,10 @@
     "@fontsource/inter": "^5.2.8",
     "@fontsource/jetbrains-mono": "^5.2.8",
     "@fontsource/syncopate": "^5.2.8",
-    "@google/genai": "^2.3.0",
+    "@google/genai": "^2.18.0",
     "clsx": "^2.1.1",
-    "lucide-react": "^1.16.0",
-    "motion": "^12.38.0",
+    "lucide-react": "^1.33.0",
+    "motion": "^12.43.0",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
     "tailwind-merge": "^3.6.0"
