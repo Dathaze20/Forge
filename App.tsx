@@ -2,6 +2,9 @@ import React, { useState, useRef, useEffect, useCallback } from 'react';
 import { Sentiment, AppState, GroundingSource } from './types';
 import { generateBlogPost, GenerationCancelledError } from './services/geminiService';
 import { getApiKey } from './lib/apiKey';
+import { takeSnapshot, saveSnapshot } from './lib/sessionSnapshot';
+import { applyUpdateSafely, type UpdateApplyOutcome } from './lib/updateApply';
+import { applyServiceWorkerUpdate } from './lib/swUpdate';
 import { Logo } from './components/Logo';
 import { InputSection } from './components/InputSection';
 import { GeneratingView } from './components/GeneratingView';
@@ -21,11 +24,16 @@ function vibrate(pattern: number | number[]) {
   try { navigator.vibrate?.(pattern); } catch {}
 }
 
+// Read once, at module load (i.e. once per page load/reload) - takeSnapshot
+// deletes what it reads, so this can only ever restore across the single
+// reload an applied update just caused, never anything older.
+const restoredOnLoad = takeSnapshot();
+
 export default function App() {
-  const [notes, setNotes] = useState('');
-  const [sentiment, setSentiment] = useState<Sentiment>(Sentiment.FOR);
-  const [appState, setAppState] = useState<AppState>(AppState.IDLE);
-  const [result, setResult] = useState<string>('');
+  const [notes, setNotes] = useState(() => restoredOnLoad?.notes ?? '');
+  const [sentiment, setSentiment] = useState<Sentiment>(() => restoredOnLoad?.sentiment ?? Sentiment.FOR);
+  const [appState, setAppState] = useState<AppState>(() => restoredOnLoad?.appState ?? AppState.IDLE);
+  const [result, setResult] = useState<string>(() => restoredOnLoad?.result ?? '');
   const [thought, setThought] = useState<string>('');
   const [sources, setSources] = useState<GroundingSource[]>([]);
 
@@ -191,6 +199,23 @@ export default function App() {
     setAppState(AppState.IDLE);
   }, []);
 
+  // The single decision point for "Update Now" in Settings: refuses to
+  // proceed while generating, otherwise snapshots any notes/draft into
+  // sessionStorage before reloading so an update can never silently discard
+  // them. Reads current notes/result/sentiment/appState fresh on every call
+  // via the dependency array, rather than letting a stale closure act on
+  // outdated content.
+  const prepareAndApplyUpdate = useCallback((): Promise<UpdateApplyOutcome> => {
+    return applyUpdateSafely({
+      isGenerating: appState === AppState.GENERATING,
+      notes,
+      result,
+      sentiment,
+      saveSnapshot,
+      reload: applyServiceWorkerUpdate,
+    });
+  }, [appState, notes, result, sentiment]);
+
   return (
     <div className="h-[100dvh] flex flex-col p-4 sm:p-6 max-w-lg mx-auto selection:bg-cyan-500 selection:text-white overflow-hidden bg-[#050a14] relative safe-pb">
       {/* SCANNER BACKGROUND EFFECT */}
@@ -284,7 +309,7 @@ export default function App() {
         </AnimatePresence>
       </main>
 
-      <SettingsPanel open={showSettings} onClose={closeSettings} />
+      <SettingsPanel open={showSettings} onClose={closeSettings} onApplyUpdate={prepareAndApplyUpdate} />
     </div>
   );
 }

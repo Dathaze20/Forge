@@ -8,7 +8,11 @@ self.addEventListener('install', (event) => {
   event.waitUntil(
     caches.open(CACHE_NAME).then((cache) => cache.addAll(STATIC_ASSETS))
   );
-  self.skipWaiting();
+  // Deliberately no skipWaiting() here. A newly installed worker now sits in
+  // "waiting" state until the page explicitly promotes it (see the message
+  // listener below) - so an ordinary deployment never force-activates itself
+  // and reloads the app out from under someone mid-generation or with unsaved
+  // notes. See lib/swUpdate.ts for the user-gated update flow.
 });
 
 self.addEventListener('activate', (event) => {
@@ -20,12 +24,27 @@ self.addEventListener('activate', (event) => {
   self.clients.claim();
 });
 
+// The page sends this only after the user has explicitly chosen to update
+// (and, if needed, safely preserved their notes/draft first) - never
+// automatically. See lib/swUpdate.ts's applyServiceWorkerUpdate().
+self.addEventListener('message', (event) => {
+  if (event.data?.type === 'SKIP_WAITING') {
+    self.skipWaiting();
+  }
+});
+
 self.addEventListener('fetch', (event) => {
   const url = new URL(event.request.url);
 
   // Never touch the generation API - it's a POST and must always hit the network live
   if (event.request.method !== 'GET') return;
   if (url.pathname.startsWith('/api/')) return;
+
+  // The update-check version file must always be a genuine live network
+  // result. Never intercept it: not cached on success, never served from
+  // the offline fallback cache either, so a device that is actually offline
+  // gets a real failure instead of a stale "yes you're up to date".
+  if (url.pathname.endsWith('/version.json')) return;
 
   event.respondWith(
     fetch(event.request)

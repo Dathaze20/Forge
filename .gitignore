@@ -5,3 +5,7 @@ dist
 .env.*.local
 .next
 .aistudio
+
+# Generated fresh by scripts/generate-version.mjs before every dev/build run -
+# always reflects the current checkout's commit, never something to commit.
+public/version.json
