@@ -47,6 +47,16 @@ export default function App() {
     setHasKey(!!getApiKey());
   }, []);
 
+  // If this component instance is ever torn down with a generation still in
+  // flight (StrictMode's dev double-mount, or future routing), abort it -
+  // otherwise a late callback captured by the old closure could still fire
+  // with no instance left to safely ignore it via the request-id guard.
+  useEffect(() => {
+    return () => {
+      abortControllerRef.current?.abort();
+    };
+  }, []);
+
   // Auto-dismiss the error toast so it doesn't linger forever if the user ignores it
   useEffect(() => {
     if (!error) return;
@@ -131,11 +141,15 @@ export default function App() {
         controller.signal
       );
 
-      if (requestId === requestIdRef.current) {
-        setTimeout(() => {
+      // Re-check at fire time, not just at schedule time - a newer generation
+      // (or a cancellation) can start in the 100ms between scheduling this
+      // and it actually running, and this request's id would still have
+      // matched at the point it was scheduled.
+      setTimeout(() => {
+        if (requestId === requestIdRef.current) {
           resultsRef.current?.scrollIntoView({ behavior: 'smooth' });
-        }, 100);
-      }
+        }
+      }, 100);
     } catch (err: any) {
       // Either a newer generation has already taken over, or this one was
       // cancelled on purpose - neither is a failure worth reporting.
