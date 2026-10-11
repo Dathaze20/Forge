@@ -9,14 +9,55 @@ const MODELS_TO_TRY = [
 
 const MAX_ATTEMPTS_PER_MODEL = 3;
 
+// Thrown whenever a generation stops because the caller cancelled it (via the
+// AbortSignal), as opposed to a genuine Gemini/network failure - callers use
+// this to tell "the user cancelled" apart from "this actually failed" so a
+// cancellation never gets reported to the user as an error.
+export class GenerationCancelledError extends Error {
+  constructor() {
+    super("Generation cancelled.");
+    this.name = "GenerationCancelledError";
+  }
+}
+
+function isAbortError(err: unknown): boolean {
+  return err instanceof GenerationCancelledError ||
+    (err instanceof Error && err.name === "AbortError");
+}
+
+// A setTimeout-based backoff delay that resolves early (by rejecting with
+// GenerationCancelledError) the moment the signal aborts, instead of making
+// a cancel wait out the full backoff window before taking effect.
+function abortableDelay(ms: number, signal: AbortSignal): Promise<void> {
+  return new Promise((resolve, reject) => {
+    if (signal.aborted) {
+      reject(new GenerationCancelledError());
+      return;
+    }
+    const onAbort = () => {
+      clearTimeout(timer);
+      reject(new GenerationCancelledError());
+    };
+    const timer = setTimeout(() => {
+      signal.removeEventListener("abort", onAbort);
+      resolve();
+    }, ms);
+    signal.addEventListener("abort", onAbort, { once: true });
+  });
+}
+
 export const generateBlogPost = async (
   notes: string,
   sentiment: Sentiment,
-  onUpdate: GenerationUpdate
+  onUpdate: GenerationUpdate,
+  signal: AbortSignal
 ): Promise<void> => {
   const apiKey = getApiKey();
   if (!apiKey) {
     throw new Error("Add your Gemini API key in Settings first.");
+  }
+  if (signal.aborted) {
+    throw new GenerationCancelledError();
   }
 
   // Loaded on demand so the SDK isn't part of the initial page bundle -
@@ -164,6 +205,7 @@ Do not output anything after the About the Author text. No metadata blocks, no t
 
   for (const currentModel of MODELS_TO_TRY) {
     for (let attempt = 0; attempt < MAX_ATTEMPTS_PER_MODEL; attempt++) {
+      if (signal.aborted) throw new GenerationCancelledError();
       onUpdate({ thought: `CONNECTING TO ${currentModel.toUpperCase()}${attempt > 0 ? ` (RETRY ${attempt + 1})` : ''}...` });
       try {
         result = await ai.models.generateContentStream({
@@ -185,11 +227,19 @@ Do not output anything after the About the Author text. No metadata blocks, no t
           config: {
             temperature: 0.8,
             systemInstruction,
+            abortSignal: signal,
             ...(currentModel.startsWith("gemini-3") ? { thinkingConfig: { thinkingLevel: ThinkingLevel.LOW } } : {}),
           },
         });
         break;
       } catch (err: any) {
+        // Cancellation surfaces here as an AbortError from the SDK's own
+        // fetch once `signal` fires - treat it as a cancellation, never as a
+        // retryable or auth failure.
+        if (signal.aborted || isAbortError(err)) {
+          throw new GenerationCancelledError();
+        }
+
         const errStr = err?.message || String(err);
         console.warn(`[Forge System] Attempt ${attempt + 1} for model ${currentModel} failed:`, errStr);
 
@@ -224,7 +274,7 @@ Do not output anything after the About the Author text. No metadata blocks, no t
 
         if (isRetryable && attempt < MAX_ATTEMPTS_PER_MODEL - 1) {
           onUpdate({ thought: `${currentModel.toUpperCase()} BUSY, RETRYING IN ${Math.round(delayMs / 1000)}S...` });
-          await new Promise((resolve) => setTimeout(resolve, delayMs));
+          await abortableDelay(delayMs, signal);
           delayMs *= 2;
         } else {
           break;
@@ -232,6 +282,10 @@ Do not output anything after the About the Author text. No metadata blocks, no t
       }
     }
     if (result || isAuthError) break;
+  }
+
+  if (signal.aborted) {
+    throw new GenerationCancelledError();
   }
 
   if (!result) {
@@ -253,12 +307,27 @@ Do not output anything after the About the Author text. No metadata blocks, no t
 
   let fullContent = "";
 
-  for await (const chunk of result) {
-    const text = chunk.text;
-    if (text) {
-      fullContent += text;
-      onUpdate({ content: fullContent, thought: "SYNTHESIZING..." });
+  try {
+    for await (const chunk of result) {
+      if (signal.aborted) throw new GenerationCancelledError();
+      const text = chunk.text;
+      if (text) {
+        fullContent += text;
+        onUpdate({ content: fullContent, thought: "SYNTHESIZING..." });
+      }
     }
+  } catch (err: unknown) {
+    // Cancelling mid-stream aborts the same underlying request `abortSignal`
+    // was attached to, which surfaces here as a thrown AbortError - normalize
+    // it to the same cancellation type everything else throws.
+    if (signal.aborted || isAbortError(err)) {
+      throw new GenerationCancelledError();
+    }
+    throw err;
+  }
+
+  if (signal.aborted) {
+    throw new GenerationCancelledError();
   }
 
   onUpdate({ content: fullContent, sources: [], isComplete: true });

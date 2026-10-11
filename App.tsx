@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect, useCallback } from 'react';
 import { Sentiment, AppState, GroundingSource } from './types';
-import { generateBlogPost } from './services/geminiService';
+import { generateBlogPost, GenerationCancelledError } from './services/geminiService';
 import { getApiKey } from './lib/apiKey';
 import { Logo } from './components/Logo';
 import { InputSection } from './components/InputSection';
@@ -34,7 +34,13 @@ export default function App() {
   const [hasKey, setHasKey] = useState(() => !!getApiKey());
   const resultsRef = useRef<HTMLDivElement>(null);
   const wakeLockRef = useRef<WakeLockSentinel | null>(null);
-  const cancelledRef = useRef(false);
+  const abortControllerRef = useRef<AbortController | null>(null);
+  // Identifies which generateBlogPost call is "current". Every callback and
+  // catch block below checks its captured id against this ref before acting,
+  // so a stale request - whether cancelled or just superseded by a newer one
+  // started before it finished - can never update state, show an error, or
+  // overwrite a newer generation's result.
+  const requestIdRef = useRef(0);
 
   const closeSettings = useCallback(() => {
     setShowSettings(false);
@@ -91,8 +97,15 @@ export default function App() {
       return;
     }
 
+    // Cancel and discard any generation already in flight before starting a
+    // new one, and mint a fresh id for this one so stale callbacks from the
+    // old request (or from this one, if it gets cancelled) are ignored below.
+    abortControllerRef.current?.abort();
+    const controller = new AbortController();
+    abortControllerRef.current = controller;
+    const requestId = ++requestIdRef.current;
+
     vibrate(30);
-    cancelledRef.current = false;
     setAppState(AppState.GENERATING);
     setResult('');
     setThought('');
@@ -104,7 +117,7 @@ export default function App() {
         notes,
         sentiment,
         (update) => {
-          if (cancelledRef.current) return;
+          if (requestId !== requestIdRef.current) return;
           if (update.content) {
             setResult(update.content);
           }
@@ -114,14 +127,21 @@ export default function App() {
             setAppState(AppState.COMPLETE);
             vibrate([40, 60, 40, 60, 80]);
           }
-        }
+        },
+        controller.signal
       );
 
-      setTimeout(() => {
-        resultsRef.current?.scrollIntoView({ behavior: 'smooth' });
-      }, 100);
+      if (requestId === requestIdRef.current) {
+        setTimeout(() => {
+          resultsRef.current?.scrollIntoView({ behavior: 'smooth' });
+        }, 100);
+      }
     } catch (err: any) {
-      if (cancelledRef.current) return;
+      // Either a newer generation has already taken over, or this one was
+      // cancelled on purpose - neither is a failure worth reporting.
+      if (requestId !== requestIdRef.current || err instanceof GenerationCancelledError) {
+        return;
+      }
       console.error("Generation error:", err);
       vibrate([100, 50, 100]);
       let userMessage = "NEURAL FORGE COLLAPSE: ANOMALY DETECTED.";
@@ -137,14 +157,22 @@ export default function App() {
       } catch (pErr) {
         userMessage = `FORGE FAILURE: ${err.message || 'UNKNOWN ERROR'}`;
       }
-      
+
       setError(userMessage);
       setAppState(AppState.IDLE);
+    } finally {
+      if (abortControllerRef.current === controller) {
+        abortControllerRef.current = null;
+      }
     }
   };
 
   const handleCancel = useCallback(() => {
-    cancelledRef.current = true;
+    abortControllerRef.current?.abort();
+    // Invalidate this generation's id immediately so its own pending
+    // callbacks and catch block are ignored the instant they arrive, without
+    // waiting for the abort to actually propagate through the network.
+    requestIdRef.current++;
     vibrate(30);
     setAppState(AppState.IDLE);
   }, []);
