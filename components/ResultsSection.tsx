@@ -103,7 +103,7 @@ export const ResultsSection = forwardRef<HTMLDivElement, ResultsSectionProps>(({
           {[
             { label: 'WORD DENSITY', value: wordCount.toLocaleString(), color: 'text-white' },
             { label: 'READ LATENCY', value: `${Math.ceil(wordCount / 265)}m`, color: 'text-white' },
-            { label: 'NEURAL NODES', value: (sources.length || 12).toString(), color: 'text-cyan-400' },
+            { label: 'SOURCES', value: sources.length.toString(), color: 'text-cyan-400' },
             { label: 'TARGET DENSITY', value: `${Math.round((wordCount / 4750) * 100)}%`, color: 'text-indigo-400' },
           ].map((stat, i) => (
             <div key={i} className="flex flex-col items-center px-1 py-1.5 rounded-lg bg-white/[0.02] border border-white/[0.03]">
