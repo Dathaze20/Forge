@@ -2,6 +2,7 @@ import React from 'react';
 import ReactDOM from 'react-dom/client';
 import App from './App';
 import './index.css';
+import { initServiceWorker } from './lib/swUpdate';
 
 ReactDOM.createRoot(document.getElementById('root')!).render(
   <React.StrictMode>
@@ -9,23 +10,9 @@ ReactDOM.createRoot(document.getElementById('root')!).render(
   </React.StrictMode>
 );
 
-if ('serviceWorker' in navigator) {
-  window.addEventListener('load', () => {
-    // Only reload on a genuine update (a controller already existed from a
-    // prior visit) - never on the first-ever install, or a fresh visit could
-    // wipe notes the user is mid-typing when the new worker activates.
-    const hadController = !!navigator.serviceWorker.controller;
-    navigator.serviceWorker.register('./sw.js').then((reg) => {
-      reg.update();
-      reg.addEventListener('updatefound', () => {
-        const newSW = reg.installing;
-        if (!newSW) return;
-        newSW.addEventListener('statechange', () => {
-          if (newSW.state === 'activated' && hadController) {
-            window.location.reload();
-          }
-        });
-      });
-    }).catch(() => {});
-  });
-}
+// Registers the offline app-shell service worker only. It never reloads the
+// page on its own - an update is only ever applied when the user explicitly
+// chooses "Update Now" in Settings (see lib/swUpdate.ts and
+// components/SettingsPanel.tsx), so a routine deployment can never reload
+// Forge out from under someone who is typing notes or mid-generation.
+initServiceWorker();
